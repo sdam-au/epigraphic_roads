@@ -1,4 +1,5 @@
-# Script accessing workflow in Python (internal SDAM project):
+# Script accessing workflow in Python 
+*(internal notes for SDAM project)*
 
 ## Online scenario
 
