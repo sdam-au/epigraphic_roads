@@ -1,0 +1,127 @@
+---
+title: "EDH Milestones"
+author: "Petra Hermankova"
+date: "01/07/2020"
+output: html_document:
+  df_print: paged
+    
+---
+
+```{r setup, echo=TRUE, message=FALSE}
+devtools::install_github("mplex/cedhar", subdir="pkg/sdam")
+library(tidyverse)
+library(tidytext)
+library(dplyr)
+library(stringr)
+library(sdam)
+library(jsonlite)
+library(getPass)
+library(formatR)
+```
+
+### Loading data
+
+1. Input your sciencedata.dk username - type directly into the RStudio console
+```{r, echo = FALSE }
+user <- readline("your sciencedata username: ")
+```
+
+2. Make the request (you will be asked for password in a new pop-up window)
+```{r, echo = FALSE }
+resp = request("EDH_cleaned_2020-06-26.json", path="/sharingin/648597@au.dk/SDAM_root/SDAM_data/EDH/", method="GET", cred=c(user, getPass("your sciencedata password: ")))
+```
+
+3. Make a list and tibble from the request function
+```{r}
+list_json <- jsonlite::fromJSON(resp)
+EDH_tibble = as_tibble(list_json)
+```
+
+# Milestones as type of an inscription
+
+```{r}
+unique(EDH_tibble$type_of_inscription_clean)
+```
+```{r}
+milestone_insc <- EDH_tibble %>% 
+  filter(type_of_inscription_clean == "mile-/leaguestone")
+```
+
+```{r}
+milestone_insc %>% 
+  count(milestone_insc$type_of_monument_clean, sort = TRUE)
+```
+
+# Milestones as type of monument
+
+```{r}
+milestone_monument <- EDH_tibble %>% 
+  filter(EDH_tibble$type_of_monument_clean == "mile-/leaguestone")
+```
+
+```{r}
+milestone_monument %>% 
+  count(milestone_monument$type_of_inscription_clean, sort = TRUE)
+```
+
+```{r}
+EDH_tibble %>% 
+  names()
+```
+
+
+```{r}
+milestone_combined<- EDH_tibble %>% 
+  filter(type_of_monument_clean == "mile-/leaguestone" | type_of_inscription_clean == "mile-/leaguestone") 
+```
+
+## Distribution by provinces
+
+```{r}
+milestone_combined %>% 
+  count(province_label_clean, sort =TRUE)
+```
+
+```{r, fig.height=10, fig.width=10}
+milestone_combined %>% 
+  count(province_label_clean, sort =TRUE) %>% 
+  ggplot(aes(y=province_label_clean, x=n), size = n) +
+  geom_point(color="red") +
+  coord_fixed(ratio = 7/1)
+  
+```
+
+## Dates
+```{r}
+dates<- milestone_combined %>% 
+  select(not_before, not_after, origdate_text, origdate_attrs) 
+dates_flat <- flatten(dates)
+dates_flat$not_before <- as.numeric(dates_flat$not_before)
+dates_flat$not_after <- as.numeric(dates_flat$not_after)
+summary(dates_flat$not_before)
+```
+
+```{r}
+plot(dates_flat$not_before)
+```
+
+```{r}
+summary(dates_flat$not_after)
+```
+```{r}
+plot(dates_flat$not_after)
+```
+
+# Temporal distribution of 'not_before' years of milestones
+```{r}
+plot(table(dates_flat$not_before), ylab= "Number of inscriptions", xlab="'Not before' YEAR")
+```
+
+## Combining dates and provinces - unfinished
+
+```{r,chunk-label, results='hide', fig.height=4}
+milestones_flat <- flatten(milestone_combined)
+milestones_flat
+```
+
+
