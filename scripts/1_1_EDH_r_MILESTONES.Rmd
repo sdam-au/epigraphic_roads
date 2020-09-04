@@ -10,9 +10,6 @@ output: html_document:
 ```{r setup, echo=TRUE, message=FALSE}
 devtools::install_github("mplex/cedhar", subdir="pkg/sdam")
 library(tidyverse)
-library(tidytext)
-library(dplyr)
-library(stringr)
 library(sdam)
 library(jsonlite)
 library(getPass)
@@ -69,21 +66,27 @@ EDH_tibble %>%
   names()
 ```
 
-
+# Combine all milestones as type of monument and type of inscription
 ```{r}
 milestone_combined<- EDH_tibble %>% 
   filter(type_of_monument_clean == "mile-/leaguestone" | type_of_inscription_clean == "mile-/leaguestone") 
 ```
 
+# Find all milestones that have a word meilen- in commentary and are defined as milestones in type of monument aand type of inscription
+```{r}
+milestone_all <- EDH_tibble %>%  
+  dplyr::filter(str_detect(commentary, "[M|m]eilen") | type_of_monument_clean == "mile-/leaguestone" | type_of_inscription_clean == "mile-/leaguestone" ) 
+```
+
 ## Distribution by provinces
 
 ```{r}
-milestone_combined %>% 
+milestone_all %>% 
   count(province_label_clean, sort =TRUE)
 ```
 
 ```{r, fig.height=10, fig.width=10}
-milestone_combined %>% 
+milestone_all %>% 
   count(province_label_clean, sort =TRUE) %>% 
   ggplot(aes(y=province_label_clean, x=n), size = n) +
   geom_point(color="red") +
@@ -91,9 +94,76 @@ milestone_combined %>%
   
 ```
 
+# Map of milestones (coordinates)
+
+
+
+
+```{r}
+library(leaflet)
+```
+
+```{r}
+# selecting milestones with coordinates 
+coords_milestone<- as.data.frame(cbind(id = milestone_all$id, 
+                                       coordinates = milestone_all$coordinates, 
+                                       findspot_ancient = milestone_all$findspot_ancient,
+                                       type_of_inscription_clean = milestone_all$type_of_inscription_clean, 
+                                       type_of_monument_clean = milestone_all$type_of_monument_clean, 
+                                       commentary = milestone_all$commentary))
+
+# milestones with no coordinates
+coords_milestone_empty<- coords_milestone %>% 
+  dplyr::filter(coordinates == "list()")
+
+# milestones with coordinates
+coords_milestone_full<- coords_milestone %>% 
+  dplyr::filter(coordinates != "list()")
+
+lat_long_milestone<- coords_milestone_full %>% 
+  separate(col = coordinates, into = c("latitude", "longitude"), sep = ",")
+
+lat_long_milestone$latitude <- as.numeric(lat_long_milestone$latitude)
+lat_long_milestone$longitude <- as.numeric(lat_long_milestone$longitude)
+```
+
+```{r}
+map_milestones <-leaflet() %>%
+  #addProviderTiles("Esri.WorldTopoMap", group = "Topo") %>%
+  addProviderTiles("Esri.WorldImagery", group = "ESRI Aerial") %>%
+  addMarkers(lng = lat_long_milestone$longitude, 
+             lat = lat_long_milestone$latitude,
+             popup = paste0("<b> InscriptionID: </b>", lat_long_milestone$id, 
+                            "<br><b> Ancient Findspot: </b>", lat_long_milestone$findspot_ancient,
+                             "<br><b> Type of inscription: </b>", lat_long_milestone$type_of_inscription_clean,
+                              "<br><b> Type of monument: </b>", lat_long_milestone$type_of_monument_clean,
+                                "<br><b> Commentary: </b>", lat_long_milestone$commentary),
+             
+    clusterOptions = markerClusterOptions()
+  )
+map_milestones
+```
+
+
+Nest steps: add Roman roads, add Roman provinces
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
 ## Dates
 ```{r}
-dates<- milestone_combined %>% 
+dates<- milestone_all %>% 
   select(not_before, not_after, origdate_text, origdate_attrs) 
 dates_flat <- flatten(dates)
 dates_flat$not_before <- as.numeric(dates_flat$not_before)
@@ -120,7 +190,7 @@ plot(table(dates_flat$not_before), ylab= "Number of inscriptions", xlab="'Not be
 ## Combining dates and provinces - unfinished
 
 ```{r,chunk-label, results='hide', fig.height=4}
-milestones_flat <- flatten(milestone_combined)
+milestones_flat <- flatten(milestone_all)
 milestones_flat
 ```
 
