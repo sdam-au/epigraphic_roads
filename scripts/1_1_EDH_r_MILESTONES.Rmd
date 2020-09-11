@@ -34,6 +34,13 @@ list_json <- jsonlite::fromJSON(resp)
 EDH_tibble = as_tibble(list_json)
 ```
 
+# What fields might contain milestone related information?
+
+```{r}
+EDH_tibble %>% 
+  names()
+```
+
 # Milestones as type of an inscription
 
 ```{r}
@@ -42,43 +49,117 @@ unique(EDH_tibble$type_of_inscription_clean)
 ```{r}
 milestone_insc <- EDH_tibble %>% 
   filter(type_of_inscription_clean == "mile-/leaguestone")
-```
-
-```{r}
-milestone_insc %>% 
-  count(milestone_insc$type_of_monument_clean, sort = TRUE)
+nrow(milestone_insc)
 ```
 
 # Milestones as type of monument
 
 ```{r}
+unique(EDH_tibble$type_of_monument_clean)
+```
+
+```{r}
 milestone_monument <- EDH_tibble %>% 
   filter(EDH_tibble$type_of_monument_clean == "mile-/leaguestone")
-```
-
-```{r}
-milestone_monument %>% 
-  count(milestone_monument$type_of_inscription_clean, sort = TRUE)
-```
-
-```{r}
-EDH_tibble %>% 
-  names()
+nrow(milestone_monument)
 ```
 
 # Combine all milestones as type of monument and type of inscription
 ```{r}
 milestone_combined<- EDH_tibble %>% 
-  filter(type_of_monument_clean == "mile-/leaguestone" | type_of_inscription_clean == "mile-/leaguestone") 
+  filter(type_of_monument_clean == "mile-/leaguestone" | type_of_inscription_clean == "mile-/leaguestone")
+nrow(milestone_combined)
 ```
 
-# Find all milestones that have a word meilen- in commentary and are defined as milestones in type of monument aand type of inscription
+# Inspect the commentary for milestone related comments
+
+```{r}
+milestone_comment<- EDH_tibble %>%  
+  dplyr::filter(str_detect(commentary, "[M|m]eilen"))
+nrow(milestone_comment)
+
+head(milestone_comment$commentary)
+```
+
+# Combine all milestones that have a word meilen- in commentary and are defined as milestones in type of monument and type of inscription
+
 ```{r}
 milestone_all <- EDH_tibble %>%  
   dplyr::filter(str_detect(commentary, "[M|m]eilen") | type_of_monument_clean == "mile-/leaguestone" | type_of_inscription_clean == "mile-/leaguestone" ) 
+nrow(milestone_all)
+```
+# How many % of the total number of EDH inscriptions represent milestones
+```{r}
+nrow(milestone_all)/(nrow(EDH_tibble)/100)
 ```
 
-## Distribution by provinces
+
+
+
+
+# Overview of all milestones
+
+## Type of inscription
+```{r}
+milestone_all %>% 
+  count(milestone_all$type_of_inscription_clean, sort = TRUE)
+```
+## Type of monument
+```{r}
+milestone_all %>% 
+  count(milestone_all$type_of_monument_clean, sort = TRUE)
+```
+
+## Language
+
+```{r}
+unnest_auto(milestone_all, language) %>% 
+  count(language, sort=TRUE)
+```
+
+
+## Material 
+```{r}
+milestone_all %>% 
+  count(material_clean, sort=TRUE)
+```
+
+# Dimensions
+
+```{r}
+milestone_dims <- milestone_all %>% 
+  dplyr::select(height_cm, width_cm, depth_cm)
+milestone_dims <- as.data.frame(milestone_dims)
+```
+
+### Basic statistical summary of Height in cm
+```{r}
+summary(milestone_dims$height_cm)
+```
+
+### Basic statistical summary of Width in cm
+```{r}
+summary(milestone_dims$width_cm)
+```
+
+### Basic statistical summary of Depth in cm
+```{r}
+summary(milestone_dims$depth_cm)
+```
+
+# Location
+
+## Ancient findspot - not cleaned
+```{r}
+head(unique(milestone_all$findspot_ancient))
+```
+
+## Ancient findspot - cleaned
+```{r}
+head(unique(milestone_all$findspot_ancient_clean))
+```
+
+## Distribution by Roman provinces
 
 ```{r}
 milestone_all %>% 
@@ -90,14 +171,12 @@ milestone_all %>%
   count(province_label_clean, sort =TRUE) %>% 
   ggplot(aes(y=province_label_clean, x=n), size = n) +
   geom_point(color="red") +
-  coord_fixed(ratio = 7/1)
-  
+  coord_fixed(ratio = 7/1) +
+  labs(x = "Number of milestones", y = "Roman province", title = "Number of milestones per Roman Province", subtitle = "n = 1720" ) +
+    theme_linedraw(base_size = 12)
 ```
 
-# Map of milestones (coordinates)
-
-
-
+# Map of milestones (with available coordinates)
 
 ```{r}
 library(leaflet)
@@ -110,6 +189,8 @@ coords_milestone<- as.data.frame(cbind(id = milestone_all$id,
                                        findspot_ancient = milestone_all$findspot_ancient,
                                        type_of_inscription_clean = milestone_all$type_of_inscription_clean, 
                                        type_of_monument_clean = milestone_all$type_of_monument_clean, 
+                                       not_before = milestone_all$not_before,
+                                       not_after = milestone_all$not_after,
                                        commentary = milestone_all$commentary))
 
 # milestones with no coordinates
@@ -125,43 +206,155 @@ lat_long_milestone<- coords_milestone_full %>%
 
 lat_long_milestone$latitude <- as.numeric(lat_long_milestone$latitude)
 lat_long_milestone$longitude <- as.numeric(lat_long_milestone$longitude)
+
+
+# how many milestones have coordinates
+nrow(lat_long_milestone)
 ```
 
+## Map as dots
 ```{r}
-map_milestones <-leaflet() %>%
+map_milestones_dot <-leaflet() %>%
+  addProviderTiles("Stamen.Watercolor")%>% # Add CartoDB map tiles
+  addCircles(lng = lat_long_milestone$longitude, 
+             lat = lat_long_milestone$latitude, radius = 10, fill = TRUE, color= , fillColor = lat_long_milestone$type_of_monument_clean,
+             popup = paste0("<b> InscriptionID: </b>", lat_long_milestone$id, 
+                            "<br><b> Ancient findspot: </b>", lat_long_milestone$findspot_ancient,
+                             "<br><b> Type of inscription: </b>", lat_long_milestone$type_of_inscription_clean,
+                              "<br><b> Type of monument: </b>", lat_long_milestone$type_of_monument_clean,
+                              "<br><b> Not before (date): </b>", lat_long_milestone$not_before,
+                              "<br><b> Not after (date): </b>", lat_long_milestone$not_after,
+                                "<br><b> Commentary: </b>", lat_long_milestone$commentary),
+)
+map_milestones_dot
+
+```
+
+
+# Map as clusters
+```{r}
+map_milestones_cluster <-leaflet() %>%
   #addProviderTiles("Esri.WorldTopoMap", group = "Topo") %>%
   addProviderTiles("Esri.WorldImagery", group = "ESRI Aerial") %>%
   addMarkers(lng = lat_long_milestone$longitude, 
              lat = lat_long_milestone$latitude,
              popup = paste0("<b> InscriptionID: </b>", lat_long_milestone$id, 
-                            "<br><b> Ancient Findspot: </b>", lat_long_milestone$findspot_ancient,
+                            "<br><b> Ancient findspot: </b>", lat_long_milestone$findspot_ancient,
                              "<br><b> Type of inscription: </b>", lat_long_milestone$type_of_inscription_clean,
                               "<br><b> Type of monument: </b>", lat_long_milestone$type_of_monument_clean,
+                              "<br><b> Not before (date): </b>", lat_long_milestone$not_before,
+                                "<br><b> Not after (date): </b>", lat_long_milestone$not_after,
                                 "<br><b> Commentary: </b>", lat_long_milestone$commentary),
              
     clusterOptions = markerClusterOptions()
   )
-map_milestones
+map_milestones_cluster
 ```
 
-
-Nest steps: add Roman roads, add Roman provinces
+# Map with Roman roads and provinces
 
 ```{r}
+library(rgdal)
+library(raster)
+library(sf)
+library(sp)
+```
+source Roads: http://awmc.unc.edu/awmc/map_data/shapefiles/ba_roads/
+source Roman provinces (AD 117): http://awmc.unc.edu/awmc/map_data/shapefiles/cultural_data/political_shading/roman_empire_ad_117/shape/
 
+```{r}
+setwd("~/Github/epigraphic_roads")
+dir.create("../data/ba_roads")
+unzip("../data/ba_roads.zip", exdir = "../data/ba_roads/")
+roads <- st_read("../data/ba_roads/ba_roads.shp")
+
+
+orbis <- readLines("https://raw.githubusercontent.com/emeeks/orbis_v2/master/base_routes.geojson") %>% paste(collapse = "\n") %>% 
+  fromJSON(simplifyVector = FALSE)
+
+dir.create("../data/roman_empire_200_ad_provinces")
+unzip("../data/roman_empire_ad_200_provinces.zip", exdir = "../data/roman_empire_200_ad_provinces")
+provinces200 <- st_read("../data/roman_empire_200_ad_provinces/roman_empire_ad_200_provinces.shp")
+```
+```{r}
+
+map_milestones_provinces<- leaflet() %>%
+ addProviderTiles("Esri.WorldTopoMap", group = "Topo") %>%
+ addProviderTiles("Esri.WorldImagery", group = "ESRI Aerial") %>%
+ addPolylines(data = provinces200, color = "red", weight = 2, opacity = 0.8) %>% 
+  addCircles(lng = lat_long_milestone$longitude, 
+             lat = lat_long_milestone$latitude, radius = 10, fill = TRUE, color = "yellow" , fillColor = "red",
+             popup = paste0("<b> InscriptionID: </b>", lat_long_milestone$id, 
+                            "<br><b> Ancient findspot: </b>", lat_long_milestone$findspot_ancient,
+                             "<br><b> Type of inscription: </b>", lat_long_milestone$type_of_inscription_clean,
+                              "<br><b> Type of monument: </b>", lat_long_milestone$type_of_monument_clean,
+                              "<br><b> Not before (date): </b>", lat_long_milestone$not_before,
+                              "<br><b> Not after (date): </b>", lat_long_milestone$not_after,
+                                "<br><b> Commentary: </b>", lat_long_milestone$commentary),
+)
+map_milestones_provinces
+```
+
+```{r}
+map_milestones_roads<- leaflet() %>%
+ addProviderTiles("Esri.WorldTopoMap", group = "Topo") %>%
+ addProviderTiles("Esri.WorldImagery", group = "ESRI Aerial") %>%
+ addPolylines(data = roads, color = "purple", weight = 2, opacity = 0.7) %>% 
+  addCircles(lng = lat_long_milestone$longitude, 
+             lat = lat_long_milestone$latitude, opacity = 1, radius = 10, fill = TRUE, color = "yellow" , fillColor = "red",
+             popup = paste0("<b> InscriptionID: </b>", lat_long_milestone$id, 
+                            "<br><b> Ancient findspot: </b>", lat_long_milestone$findspot_ancient,
+                             "<br><b> Type of inscription: </b>", lat_long_milestone$type_of_inscription_clean,
+                              "<br><b> Type of monument: </b>", lat_long_milestone$type_of_monument_clean,
+                              "<br><b> Not before (date): </b>", lat_long_milestone$not_before,
+                              "<br><b> Not after (date): </b>", lat_long_milestone$not_after,
+                                "<br><b> Commentary: </b>", lat_long_milestone$commentary),)
+map_milestones_roads
+```
+
+# Location of milestones compared with all inscriptions
+
+```{r}
+# inscriptions with coordinates
+EDH_coords<- as.data.frame(unlist(EDH_tibble$coordinates))
+
+
+lat_long_EDH<- EDH_coords %>% 
+  mutate(coordinates = unlist(EDH_tibble$coordinates)) %>% 
+  separate(col = coordinates, into = c("latitude", "longitude"), sep = ",")
+
+lat_long_EDH$latitude <- as.numeric(lat_long_EDH$latitude)
+lat_long_EDH$longitude <- as.numeric(lat_long_EDH$longitude)
+
+
+# how many inscriptions have coordinates
+nrow(lat_long_EDH)
+
+# how many % of the total represent milestones with coordinates
+nrow(lat_long_milestone)/(nrow(lat_long_EDH)/100)
+```
+
+```{r}
+map_milestones_compared<- leaflet() %>%
+addProviderTiles("Stamen.TerrainBackground")%>% # Add CartoDB map tiles
+# addProviderTiles("Esri.WorldImagery", group = "ESRI Aerial") %>%
+# addPolylines(data = roads, color = "purple", weight = 2, opacity = 0.7) %>% 
+  addCircles(lng = lat_long_EDH$longitude, 
+             lat = lat_long_EDH$latitude, opacity = 0.3, radius = 10, fill = TRUE, color = "black" , fillColor = "white",) %>% 
+  addCircles(lng = lat_long_milestone$longitude, 
+             lat = lat_long_milestone$latitude, opacity = 0.8, radius = 10, fill = TRUE, color = "yellow" , fillColor = "red",
+             popup = paste0("<b> InscriptionID: </b>", lat_long_milestone$id, 
+                            "<br><b> Ancient findspot: </b>", lat_long_milestone$findspot_ancient,
+                             "<br><b> Type of inscription: </b>", lat_long_milestone$type_of_inscription_clean,
+                              "<br><b> Type of monument: </b>", lat_long_milestone$type_of_monument_clean,
+                              "<br><b> Not before (date): </b>", lat_long_milestone$not_before,
+                              "<br><b> Not after (date): </b>", lat_long_milestone$not_after,
+                                "<br><b> Commentary: </b>", lat_long_milestone$commentary),)
+map_milestones_compared
 ```
 
 
-
-
-
-
-
-
-
-
-
-## Dates
+# Dates
 ```{r}
 dates<- milestone_all %>% 
   select(not_before, not_after, origdate_text, origdate_attrs) 
