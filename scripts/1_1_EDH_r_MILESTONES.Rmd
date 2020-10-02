@@ -2,9 +2,14 @@
 title: "EDH Milestones"
 author: "Petra Hermankova"
 date: "01/07/2020"
-output: html_document:
-  df_print: paged
-    
+output:
+  html_document:
+    theme: cerulean
+    toc: yes
+    toc_depth: 3
+  pdf_document:
+    toc: yes
+    toc_depth: '3'
 ---
 
 ```{r setup, echo=TRUE, message=FALSE}
@@ -14,28 +19,29 @@ library(sdam)
 library(jsonlite)
 library(getPass)
 library(formatR)
+library(leaflet)
 ```
 
 ### Loading data
 
-1. Input your sciencedata.dk username - type directly into the RStudio console
-```{r, echo = FALSE }
-user <- readline("your sciencedata username: ")
+## 1. Load the credentials from external csv
+```{r}
+mycred_secret<- readLines("~/mysecret.txt")
 ```
 
-2. Make the request (you will be asked for password in a new pop-up window)
+## 2. Make the request (you will be asked for password in a new pop-up window)
 ```{r, echo = FALSE }
-resp = request("EDH_cleaned_2020-06-26.json", path="/sharingin/648597@au.dk/SDAM_root/SDAM_data/EDH/", method="GET", cred=c(user, getPass("your sciencedata password: ")))
+resp = request("EDH_attrs_cleaned_2020-09-30.json", path="/sharingin/648597@au.dk/SDAM_root/SDAM_data/EDH/public", method="GET", cred=mycred_secret)
 ```
 
-3. Make a list and tibble from the request function
+## 3. Make a list and tibble from the request function
 ```{r}
 list_json <- jsonlite::fromJSON(resp)
 EDH_tibble = as_tibble(list_json)
+head(EDH_tibble)
 ```
 
 # What fields might contain milestone related information?
-
 ```{r}
 EDH_tibble %>% 
   names()
@@ -172,21 +178,17 @@ milestone_all %>%
   ggplot(aes(y=province_label_clean, x=n), size = n) +
   geom_point(color="red") +
   coord_fixed(ratio = 7/1) +
-  labs(x = "Number of milestones", y = "Roman province", title = "Number of milestones per Roman Province", subtitle = "n = 1720" ) +
+  labs(x = "Number of milestones", y = "Roman province", title = "Number of milestones per Roman Province", subtitle = "n = 1770" ) +
     theme_linedraw(base_size = 12)
 ```
 
 # Map of milestones (with available coordinates)
 
 ```{r}
-library(leaflet)
-```
-
-```{r}
 # selecting milestones with coordinates 
 coords_milestone<- as.data.frame(cbind(id = milestone_all$id, 
                                        coordinates = milestone_all$coordinates, 
-                                       findspot_ancient = milestone_all$findspot_ancient,
+                                       findspot_ancient_clean = milestone_all$findspot_ancient_clean,
                                        type_of_inscription_clean = milestone_all$type_of_inscription_clean, 
                                        type_of_monument_clean = milestone_all$type_of_monument_clean, 
                                        not_before = milestone_all$not_before,
@@ -201,11 +203,13 @@ coords_milestone_empty<- coords_milestone %>%
 coords_milestone_full<- coords_milestone %>% 
   dplyr::filter(coordinates != "list()")
 
-lat_long_milestone<- coords_milestone_full %>% 
-  separate(col = coordinates, into = c("latitude", "longitude"), sep = ",")
+head(coords_milestone_full)
 
-lat_long_milestone$latitude <- as.numeric(lat_long_milestone$latitude)
-lat_long_milestone$longitude <- as.numeric(lat_long_milestone$longitude)
+lat_long_milestone<- coords_milestone_full %>% 
+  separate(col = coordinates, into = c("longitude", "latitude"), sep = ",")
+
+lat_long_milestone$latitude <- as.numeric(str_replace(lat_long_milestone$latitude, pattern = "\\)", replacement=""))
+lat_long_milestone$longitude <- as.numeric(str_replace(lat_long_milestone$longitude, pattern = "c\\(", replacement=""))
 
 
 # how many milestones have coordinates
@@ -266,16 +270,20 @@ source Roman provinces (AD 117): http://awmc.unc.edu/awmc/map_data/shapefiles/cu
 setwd("~/Github/epigraphic_roads")
 dir.create("../data/ba_roads")
 unzip("../data/ba_roads.zip", exdir = "../data/ba_roads/")
-roads <- st_read("../data/ba_roads/ba_roads.shp")
-
-
-orbis <- readLines("https://raw.githubusercontent.com/emeeks/orbis_v2/master/base_routes.geojson") %>% paste(collapse = "\n") %>% 
-  fromJSON(simplifyVector = FALSE)
-
 dir.create("../data/roman_empire_200_ad_provinces")
 unzip("../data/roman_empire_ad_200_provinces.zip", exdir = "../data/roman_empire_200_ad_provinces")
+```
+
+```{r}
+roads <- st_read("../data/ba_roads/ba_roads.shp")
 provinces200 <- st_read("../data/roman_empire_200_ad_provinces/roman_empire_ad_200_provinces.shp")
 ```
+
+```{r}
+orbis <- readLines("https://raw.githubusercontent.com/emeeks/orbis_v2/master/base_routes.geojson") %>% paste(collapse = "\n") %>% 
+  fromJSON(simplifyVector = FALSE)
+```
+
 ```{r}
 
 map_milestones_provinces<- leaflet() %>%
@@ -316,16 +324,13 @@ map_milestones_roads
 
 ```{r}
 # inscriptions with coordinates
-EDH_coords<- as.data.frame(unlist(EDH_tibble$coordinates))
 
+lat_long_EDH <- EDH_tibble %>%  
+  separate(col = coordinates, into = c("longitude", "latitude"), sep = ",")
+lat_long_EDH
 
-lat_long_EDH<- EDH_coords %>% 
-  mutate(coordinates = unlist(EDH_tibble$coordinates)) %>% 
-  separate(col = coordinates, into = c("latitude", "longitude"), sep = ",")
-
-lat_long_EDH$latitude <- as.numeric(lat_long_EDH$latitude)
-lat_long_EDH$longitude <- as.numeric(lat_long_EDH$longitude)
-
+lat_long_EDH$latitude <- as.numeric(str_replace(lat_long_EDH$latitude, pattern = "\\)", replacement=""))
+lat_long_EDH$longitude <- as.numeric(str_replace(lat_long_EDH$longitude, pattern = "c\\(", replacement=""))
 
 # how many inscriptions have coordinates
 nrow(lat_long_EDH)
@@ -339,52 +344,64 @@ map_milestones_compared<- leaflet() %>%
 addProviderTiles("Stamen.TerrainBackground")%>% # Add CartoDB map tiles
 # addProviderTiles("Esri.WorldImagery", group = "ESRI Aerial") %>%
 # addPolylines(data = roads, color = "purple", weight = 2, opacity = 0.7) %>% 
+  setView( lng = 22.326743, lat = 46.897122, zoom = 4 ) %>%
+  setMaxBounds(lat1=43.633977, lng1 =-11.227926 , lat2=35.133882 , lng2=50.882336) %>% 
   addCircles(lng = lat_long_EDH$longitude, 
-             lat = lat_long_EDH$latitude, opacity = 0.3, radius = 10, fill = TRUE, color = "black" , fillColor = "white",) %>% 
+             lat = lat_long_EDH$latitude, opacity = 0.5, radius = 10, fill = TRUE, color = "black" , fillColor = "white",) %>% 
   addCircles(lng = lat_long_milestone$longitude, 
-             lat = lat_long_milestone$latitude, opacity = 0.8, radius = 10, fill = TRUE, color = "yellow" , fillColor = "red",
+             lat = lat_long_milestone$latitude, opacity = 0.5, radius = 10, fill = TRUE, color = "yellow" , fillColor = "",
              popup = paste0("<b> InscriptionID: </b>", lat_long_milestone$id, 
                             "<br><b> Ancient findspot: </b>", lat_long_milestone$findspot_ancient,
                              "<br><b> Type of inscription: </b>", lat_long_milestone$type_of_inscription_clean,
                               "<br><b> Type of monument: </b>", lat_long_milestone$type_of_monument_clean,
                               "<br><b> Not before (date): </b>", lat_long_milestone$not_before,
                               "<br><b> Not after (date): </b>", lat_long_milestone$not_after,
-                                "<br><b> Commentary: </b>", lat_long_milestone$commentary),)
+                                "<br><b> Commentary: </b>", lat_long_milestone$commentary),
+             ) %>% 
+addLegend(position = "topright",
+  colors = c("Yellow", "Black"),
+  labels = c("Milestones", "Other inscriptions"), opacity = 1,
+  title = "Milestones vs other inscriptions (EDH)"
+)
 map_milestones_compared
 ```
 
 
-# Dates
+## Dates
 ```{r}
-dates<- milestone_all %>% 
-  select(not_before, not_after, origdate_text, origdate_attrs) 
-dates_flat <- flatten(dates)
-dates_flat$not_before <- as.numeric(dates_flat$not_before)
-dates_flat$not_after <- as.numeric(dates_flat$not_after)
-summary(dates_flat$not_before)
+#dates<- milestone_all %>% 
+  #select(not_before, not_after, origdate_text, origdate_attrs) 
+#dates_flat <- flatten(dates)
+#dates_flat$not_before <- as.numeric(dates_flat$not_before)
+#dates_flat$not_after <- as.numeric(dates_flat$not_after)
+#summary(dates_flat$not_before)
 ```
 
 ```{r}
-plot(dates_flat$not_before)
+#plot(dates_flat$not_before)
 ```
 
 ```{r}
-summary(dates_flat$not_after)
+#summary(dates_flat$not_after)
 ```
 ```{r}
-plot(dates_flat$not_after)
+#plot(dates_flat$not_after)
 ```
 
-# Temporal distribution of 'not_before' years of milestones
+## Temporal distribution of 'not_before' years of milestones
 ```{r}
-plot(table(dates_flat$not_before), ylab= "Number of inscriptions", xlab="'Not before' YEAR")
+#plot(table(dates_flat$not_before), ylab= "Number of inscriptions", xlab="'Not before' YEAR")
 ```
 
-## Combining dates and provinces - unfinished
+### Combining dates and provinces - unfinished
 
 ```{r,chunk-label, results='hide', fig.height=4}
-milestones_flat <- flatten(milestone_all)
-milestones_flat
+#milestones_flat <- flatten(milestone_all)
+#milestones_flat
 ```
 
+```{r}
+# remove any traces of the secret password from the document
+remove(mycred_secret)
+```
 
