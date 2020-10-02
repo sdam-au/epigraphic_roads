@@ -12,7 +12,7 @@ output:
     toc_depth: '3'
 ---
 
-```{r setup, echo=TRUE, message=FALSE}
+```{r setup, echo=FALSE, message=FALSE}
 devtools::install_github("mplex/cedhar", subdir="pkg/sdam")
 library(tidyverse)
 library(sdam)
@@ -32,6 +32,7 @@ mycred_secret<- readLines("~/mysecret.txt")
 ## 2. Make the request (you will be asked for password in a new pop-up window)
 ```{r, echo = FALSE }
 resp = request("EDH_attrs_cleaned_2020-09-30.json", path="/sharingin/648597@au.dk/SDAM_root/SDAM_data/EDH/public", method="GET", cred=mycred_secret)
+remove(mycred_secret)
 ```
 
 ## 3. Make a list and tibble from the request function
@@ -67,6 +68,7 @@ unique(EDH_tibble$type_of_monument_clean)
 ```{r}
 milestone_monument <- EDH_tibble %>% 
   filter(EDH_tibble$type_of_monument_clean == "mile-/leaguestone")
+
 nrow(milestone_monument)
 ```
 
@@ -229,6 +231,11 @@ map_milestones_dot <-leaflet() %>%
                               "<br><b> Not before (date): </b>", lat_long_milestone$not_before,
                               "<br><b> Not after (date): </b>", lat_long_milestone$not_after,
                                 "<br><b> Commentary: </b>", lat_long_milestone$commentary),
+) %>% 
+addLegend(position = "topright",
+  colors = c("Blue"),
+  labels = c("Milestones (n=1770)"), opacity = 1,
+  title = "Position of all milestones in the EDH dataset" 
 )
 map_milestones_dot
 
@@ -251,7 +258,12 @@ map_milestones_cluster <-leaflet() %>%
                                 "<br><b> Commentary: </b>", lat_long_milestone$commentary),
              
     clusterOptions = markerClusterOptions()
-  )
+  ) %>% 
+addLegend(position = "topright",
+  colors = c("Blue", "Green", "Yellow", "Orange"),
+  labels = c("Individual inscription", "Small cluster", "Medium cluster", "Large cluster"), opacity = 1,
+  title = "Clustering of all milestones in the EDH dataset" 
+)
 map_milestones_cluster
 ```
 
@@ -287,8 +299,9 @@ orbis <- readLines("https://raw.githubusercontent.com/emeeks/orbis_v2/master/bas
 ```{r}
 
 map_milestones_provinces<- leaflet() %>%
- addProviderTiles("Esri.WorldTopoMap", group = "Topo") %>%
- addProviderTiles("Esri.WorldImagery", group = "ESRI Aerial") %>%
+ #addProviderTiles("Esri.WorldTopoMap", group = "Topo") %>%
+ #addProviderTiles("Esri.WorldImagery", group = "ESRI Aerial") %>%
+ addProviderTiles("Stamen.Watercolor")%>% # Add CartoDB map tiles
  addPolylines(data = provinces200, color = "red", weight = 2, opacity = 0.8) %>% 
   addCircles(lng = lat_long_milestone$longitude, 
              lat = lat_long_milestone$latitude, radius = 10, fill = TRUE, color = "yellow" , fillColor = "red",
@@ -299,24 +312,36 @@ map_milestones_provinces<- leaflet() %>%
                               "<br><b> Not before (date): </b>", lat_long_milestone$not_before,
                               "<br><b> Not after (date): </b>", lat_long_milestone$not_after,
                                 "<br><b> Commentary: </b>", lat_long_milestone$commentary),
+) %>% 
+addLegend(position = "topright",
+  colors = c("Yellow", "Red"),
+  labels = c("Milestones", "Roman Province bondaries (200 AD)"), opacity = 1,
+  title = "Milestones in the Roman Empire" 
 )
 map_milestones_provinces
 ```
 
 ```{r}
 map_milestones_roads<- leaflet() %>%
- addProviderTiles("Esri.WorldTopoMap", group = "Topo") %>%
- addProviderTiles("Esri.WorldImagery", group = "ESRI Aerial") %>%
- addPolylines(data = roads, color = "purple", weight = 2, opacity = 0.7) %>% 
+ addProviderTiles("Stamen.Watercolor")%>% # Add CartoDB map tiles
+ #addProviderTiles("Esri.WorldTopoMap", group = "Topo") %>%
+ #addProviderTiles("Esri.WorldImagery", group = "ESRI Aerial") %>%
+ addPolylines(data = roads, color = "purple", weight = 1, opacity = 0.7) %>% 
   addCircles(lng = lat_long_milestone$longitude, 
-             lat = lat_long_milestone$latitude, opacity = 1, radius = 10, fill = TRUE, color = "yellow" , fillColor = "red",
+             lat = lat_long_milestone$latitude, opacity = 0.7, radius = 10, fill = TRUE, color = "yellow" , fillColor = "red",
              popup = paste0("<b> InscriptionID: </b>", lat_long_milestone$id, 
                             "<br><b> Ancient findspot: </b>", lat_long_milestone$findspot_ancient,
                              "<br><b> Type of inscription: </b>", lat_long_milestone$type_of_inscription_clean,
                               "<br><b> Type of monument: </b>", lat_long_milestone$type_of_monument_clean,
                               "<br><b> Not before (date): </b>", lat_long_milestone$not_before,
                               "<br><b> Not after (date): </b>", lat_long_milestone$not_after,
-                                "<br><b> Commentary: </b>", lat_long_milestone$commentary),)
+                                "<br><b> Commentary: </b>", lat_long_milestone$commentary),
+             ) %>% 
+addLegend(position = "topright",
+  colors = c("Yellow", "Purple"),
+  labels = c("Milestones", "Roman roads (BA atlas)"), opacity = 1,
+  title = "Milestones and Roman roads" 
+)
 map_milestones_roads
 ```
 
@@ -341,7 +366,8 @@ nrow(lat_long_milestone)/(nrow(lat_long_EDH)/100)
 
 ```{r}
 map_milestones_compared<- leaflet() %>%
-addProviderTiles("Stamen.TerrainBackground")%>% # Add CartoDB map tiles
+# addProviderTiles("Stamen.TerrainBackground")%>% # Add CartoDB map tiles
+ addProviderTiles("Stamen.Watercolor")%>% # Add CartoDB map tiles
 # addProviderTiles("Esri.WorldImagery", group = "ESRI Aerial") %>%
 # addPolylines(data = roads, color = "purple", weight = 2, opacity = 0.7) %>% 
   setView( lng = 22.326743, lat = 46.897122, zoom = 4 ) %>%
