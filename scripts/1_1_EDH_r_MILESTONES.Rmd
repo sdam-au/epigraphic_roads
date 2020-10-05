@@ -348,7 +348,7 @@ map_milestones_cluster
 
 ## Milestones and Roman provinces (200 AD)
 
-```{r}
+```{r, echo=FALSE}
 library(rgdal)
 library(raster)
 library(sf)
@@ -357,7 +357,7 @@ library(sp)
 source Roads: http://awmc.unc.edu/awmc/map_data/shapefiles/ba_roads/
 source Roman provinces (AD 117): http://awmc.unc.edu/awmc/map_data/shapefiles/cultural_data/political_shading/roman_empire_ad_117/shape/
 
-```{r}
+```{r, echo=FALSE}
 setwd("~/Github/epigraphic_roads")
 dir.create("../data/ba_roads")
 unzip("../data/ba_roads.zip", exdir = "../data/ba_roads/")
@@ -365,12 +365,12 @@ dir.create("../data/roman_empire_200_ad_provinces")
 unzip("../data/roman_empire_ad_200_provinces.zip", exdir = "../data/roman_empire_200_ad_provinces")
 ```
 
-```{r}
+```{r, echo=FALSE}
 roads <- st_read("../data/ba_roads/ba_roads.shp")
 provinces200 <- st_read("../data/roman_empire_200_ad_provinces/roman_empire_ad_200_provinces.shp")
 ```
 
-```{r}
+```{r, echo=FALSE}
 orbis <- readLines("https://raw.githubusercontent.com/emeeks/orbis_v2/master/base_routes.geojson") %>% paste(collapse = "\n") %>% 
   fromJSON(simplifyVector = FALSE)
 ```
