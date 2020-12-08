@@ -19,7 +19,7 @@ Epigraphic dataset - Epigraphic Database Heidelberg, see a series of scripts in 
 
 ### Input dataset 
 
-www.sciencedata.dk/sharingin/648597@au.dk/SDAM_root/SDAM_data/EDH/public/EDH_attrs_cleaned_2020-09-30.json
+www.sciencedata.dk/sharingin/648597@au.dk/SDAM_root/SDAM_data/EDH/public/EDH_text_cleaned_2020-10-09.json
 
 Access with R (using `sdam` package)
 
