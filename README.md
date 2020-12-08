@@ -8,11 +8,6 @@
 ## Purpose
 The aim of this repository is to analyse information about roads and road networks in the ancient Mediterranean on the basis of surviving Greek and Latin inscriptions. 
 
----
-
-# Metadata 
-This section describes the origin of data, or source of any reused scripts etc., license and specify any prerequisites or technical requirements.
-
 ## Authors
 * Petra Hermankova [![](https://orcid.org/sites/default/files/images/orcid_16x16.png)](https://orcid.org/0000-0002-6349-0540), SDAM project, petra.hermankova@cas.au.dk
 
@@ -23,9 +18,11 @@ This section describes the origin of data, or source of any reused scripts etc.,
 Epigraphic dataset - Epigraphic Database Heidelberg, see a series of scripts in [EDH_ETL Repository](https://github.com/sdam-au/edh_workflow) used to access and clean the tabular attributes of the dataset. For details about the cleaning of the text of inscriptions, see [R_CLEANING_TEXT_INSCRIPTION.Rmd](https://github.com/sdam-au/EDH_exploration/blob/master/scripts/R_CLEANING_TEXT_INSCRIPTION.Rmd).
 
 ### Input dataset 
+
 www.sciencedata.dk/sharingin/648597@au.dk/SDAM_root/SDAM_data/EDH/public/EDH_attrs_cleaned_2020-09-30.json
 
 Access with R (using `sdam` package)
+
 `resp = request("EDH_attrs_cleaned_2020-09-30.json", path="/sharingin/648597@au.dk/SDAM_root/SDAM_data/EDH/public", method="GET")`
 
 ### Software
