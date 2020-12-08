@@ -1,0 +1,54 @@
+---
+title: "Machin Learning"
+author: "Petra Hermankova"
+date: "04/12/2020"
+output: html_document
+---
+
+
+```{r setup, echo=TRUE, message=FALSE}
+devtools::install_github("sdam-au/sdam") # loading SDAM custom package, if not working try devtools::install_github("mplex/cedhar", subdir="pkg/sdam")
+#devtools::install_github("mplex/cedhar", subdir="pkg/sdam")
+library(tidyverse)
+library(sdam)
+library(jsonlite)
+library(getPass)
+library(formatR)
+library(leaflet)
+```
+
+## Loading data
+Load the dataset, if you have Sciencedata.dk credentials
+
+```{r, echo=FALSE}
+mycred_secret<- readLines("~/mysecret.txt")
+```
+
+```{r, loading data}
+resp = request("EDH_attrs_cleaned_2020-09-30.json", path="/sharingin/648597@au.dk/SDAM_root/SDAM_data/EDH/public", method="GET", cred=mycred_secret)
+```
+
+```{r, echo=FALSE}
+remove(mycred_secret)
+```
+
+OR of you don't have Sciencedata credentials:
+```{r, loading data public}
+resp = request("EDH_attrs_cleaned_2020-09-30.json", path="/sharingin/648597@au.dk/SDAM_root/SDAM_data/EDH/public", method="GET")
+```
+
+Make a list and tibble from the downloaded dataset
+```{r}
+list_json <- jsonlite::fromJSON(resp)
+EDH_tibble = as_tibble(list_json)
+```
+
+## Exploring the data
+Display the first six records of the dataset
+```{r}
+head(EDH_tibble)
+```
+
+
+
+

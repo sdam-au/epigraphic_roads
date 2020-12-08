@@ -37,7 +37,7 @@ library(leaflet)
 ```
 
 ## Loading data
-1. Load the dataset, if you have Sciencedata.dk credentials
+Load the dataset, if you have Sciencedata.dk credentials
 
 ```{r, echo=FALSE}
 mycred_secret<- readLines("~/mysecret.txt")
@@ -51,11 +51,17 @@ resp = request("EDH_attrs_cleaned_2020-09-30.json", path="/sharingin/648597@au.d
 remove(mycred_secret)
 ```
 
-3. Make a list and tibble from the request function
+OR of you don't have Sciencedata credentials:
+```{r, loading data public}
+resp = request("EDH_attrs_cleaned_2020-09-30.json", path="/sharingin/648597@au.dk/SDAM_root/SDAM_data/EDH/public", method="GET")
+```
+
+Make a list and tibble from the downloaded dataset
 ```{r}
 list_json <- jsonlite::fromJSON(resp)
 EDH_tibble = as_tibble(list_json)
 ```
+
 ## Exploring the data
 Display the first six records of the dataset
 ```{r}
@@ -161,7 +167,6 @@ Now we will combine all milestones that have a word meilen- in `commentary` and 
 milestone_all <- EDH_tibble %>%  
   dplyr::filter(str_detect(commentary, "[M|m]eilen") | type_of_monument_clean == "mile-/leaguestone" | type_of_inscription_clean == "mile-/leaguestone" | support_objecttype =="89" | keywords_term =="102") 
 ```
-
 
 
 # Descriptive overview 
@@ -588,4 +593,6 @@ dates %>%
 - searching for new milestones in digital datasets, applying the newly created set of rules of what defines a milestone to the rest of EDH and other large datasets of inscriptions
 
 **Any questions, suggestions, and comments are more than welcome at `petra.hermankova@cas.au.dk`.**
+
+
 
