@@ -23,7 +23,7 @@ https://sciencedata.dk/public/b6b6afdb969d378b70929e86e58ad975/EDH_text_cleaned_
 
 Access with R (using `sdam` package)
 
-`resp = request("EDH_attrs_cleaned_2020-09-30.json", path="/sharingin/648597@au.dk/SDAM_root/SDAM_data/EDH/public", method="GET")`
+`resp = request("EDH_text_cleaned_2020-10-09.json", path="/sharingin/648597@au.dk/SDAM_root/SDAM_data/EDH/public", method="GET")`
 
 ### Software
 
