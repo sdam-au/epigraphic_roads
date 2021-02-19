@@ -1,0 +1,96 @@
+# Search for Road-related inscription
+
+## Defining road related vocabulary
+```{r}
+road_vocabulary1 <- c("via", "pons", "mutatio", "mansio", "caput viae", "miliarium", "millia passuum", "passus", "carpentum", "porta", "vicus", "clivus", "semita", "angiportus", "scala", "gradus", "gressus", "incessus", "leuga", "tabellarium", "tabelarium", "itinerarium", "annona", "actus", "cursus publicus", "vehiculatio", "vehiculum", "iter", "iumentum", "Via publica", "Via privata", "Via vicinalis", "Via terrena", "viam munire", "viam fecit", "viam refecit", "viam restituit", "curator viarum", "compitum", "deverticulum", "diverticulum", "civitas", "viator", "arcus", "statio", "terminus", "lares viales", "lares compitales", "Redicolus", "Ianus")
+road_vocabulary2 <- c("παροδεῖτα")
+```
+
+## Searching for predefined vocabulary in lemmata
+```{r}
+full_appended %>%
+  count(lemma, sort = TRUE) %>%
+  filter(lemma %in% road_vocabulary1) %>%
+  print()
+```
+
+```{r}
+full_appended %>%
+  filter(token == "viator") %>%
+  count()
+```
+
+```{r}
+full_appended %>%
+  filter(lemma == "viator") %>%
+  count()
+```
+
+```{r}
+length(unique(str_subset(full_appended$clean_text_interpretive_word, "viator")))
+```
+
+```{r}
+full_appended %>%
+  filter(full_appended$inscription == str_subset(full_appended$inscription, "viator viator quod tu"))
+```
+
+
+
+### Separating the subdataset containing the predefined vocabulary
+```{r}
+road_text <- full_appended %>%
+  filter(lemma %in% road_vocabulary1) %>%
+  print()
+```
+
+### From what province some road related inscriptions
+```{r}
+road_text %>%
+  count(province, sort=TRUE)
+```
+
+### What are the most common words (lemma and token)
+```{r}
+road_text %>%
+  count(lemma, token, sort=TRUE)
+```
+
+### How many unique inscriptions there are
+```{r}
+length(unique(road_text$doc_id))
+```
+
+### Select only the text of inscriptions once
+```{r}
+road_unique<- road_text %>% distinct(doc_id, .keep_all = TRUE)
+```
+
+
+```{r}
+library(leaflet)
+
+road_unique$Longitude <- as.numeric(road_unique$Longitude)
+road_unique$Latitude <- as.numeric (road_unique$Latitude)
+
+map_road_insc <-leaflet(width="100%") %>%
+  addProviderTiles("Stamen.Watercolor")%>% # Add CartoDB map tiles
+  addCircles(lng = road_unique$Longitude,
+             lat = road_unique$Latitude, radius = 10, fill = TRUE, color= , fillColor = road_unique$province,
+             popup = paste0("<b> InscriptionID: </b>", road_unique$`EDCS-ID` ,
+                            "<br><b> Ancient findspot: </b>", road_unique$place,
+                             "<br><b> Type of inscription: </b>", road_unique$status,
+                              "<br><b> Material: </b>", road_unique$Material,
+                              "<br><b> Not before (date): </b>", road_unique$`dating from`,
+                              "<br><b> Not after (date): </b>", road_unique$`dating to`,
+                                "<br><b> Text: </b>", road_unique$clean_text_interpretive_word),
+) %>%
+addLegend(position = "topright",
+  colors = c("Blue"),
+  labels = c("Inscriptions"), opacity = 1,
+  title = "Position of all road realted inscriptions in EDCS"
+)
+map_road_insc
+
+
+```
