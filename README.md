@@ -42,7 +42,7 @@ As a next step, I will overlay the subset of isncriptions with the known dataset
 [![License: CC BY-NC-SA 4.0](https://licensebuttons.net/l/by-nc-sa/4.0/80x15.png "Creative Commons License CC BY-NC-SA 4.0")](https://creativecommons.org/licenses/by-nc-sa/4.0/) CC-BY-SA 4.0, see attached [License](https://github.com/sdam-au/epigraphic_roads/blob/master/LICENSE.md) 
 
 ## Data
-Epigraphic dataset - Epigraphic Database Heidelberg, see a series of scripts in [EDH_ETL Repository](https://github.com/sdam-au/edh_workflow) used to access and clean the tabular attributes of the dataset. For details about the cleaning of the text of inscriptions, see [R_CLEANING_TEXT_INSCRIPTION.Rmd](https://github.com/sdam-au/EDH_exploration/blob/master/scripts/R_CLEANING_TEXT_INSCRIPTION.Rmd).
+Epigraphic dataset - Epigraphic Database Heidelberg, see a series of scripts in [EDH_ETL Repository](https://github.com/sdam-au/EDH_ETL) used to access and clean the tabular attributes of the dataset and the text of inscriptions.
 
 ### Input dataset 
 
@@ -52,10 +52,9 @@ Access with R (using `sdam` package)
 
 `resp = request("EDH_text_cleaned_2021-01-21.json", path="/sharingin/648597@au.dk/SDAM_root/SDAM_data/EDH/public", method="GET")`
 
-### Data output
+### Data output (public folder on Sciencedata.dk)
 
 https://sciencedata.dk/shared/66cbabddae0e02c6ae6c15be9746990c
-
 
 ### Software
 
