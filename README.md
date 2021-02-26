@@ -1,4 +1,4 @@
-# The detection of Road network in the ancient Mediterranean based on quantitative analysis of epigraphy
+# The detection of Road network in the ancient Mediterranean based on quantitative analysis of inscriptions
 *ANALYSIS*
 
 ---
