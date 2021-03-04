@@ -1,4 +1,4 @@
-# The detection of Road network in the ancient Mediterranean based on quantitative analysis of inscriptions
+# The use of roads as one of the main form of infrastructure in the ancient Mediterranean based on inscriptions
 *ANALYSIS*
 
 ---
@@ -6,9 +6,10 @@
 ![Project_status](https://img.shields.io/badge/status-in__progress-brightgreen "Project status logo")
 
 ## Purpose
-The aim of this repository is to extract information about the road system in the ancient Mediterranean on the basis of surviving Latin and potentially also Greek inscriptions. 
 
-**Project 1 - Milestones**
+The aim of this repository is to extract information about the road system and its use in the ancient Mediterranean on the basis of surviving Latin, and potentially also Greek, inscriptions. 
+
+### Project 1 - Milestones
 
 Milestone is a type of inscription on stone that was placed next to the road so the travellers could orientate themselves in the space. Milestones usually contained information on who built or paid for the reconstruction of the road, who was responsible for the maintenance and to the administrative region of which city the road belonged. The distances were usually stated in Roman miles with the typical formula 'milia passuum' (literally: thousand steps).
 
@@ -22,16 +23,16 @@ The set of rules will contain:
 1. most common material
 1. typical range of physical dimensions etc.
 
-FUTURE STEPS: The example of a milestone inscription will be later expanded to all types of inscriptions in order to create a handbook for epigraphers.
+FUTURE STEPS: The example of a milestone inscription will be later expanded to all types of inscriptions in order to create a handbook for epigraphers, see subproject 1.
 
-**Subproject 1 - classification of inscriptions**
+#### Subproject 1 - classification of inscriptions
 
 Train a classification model (based on the data + metadata available through EDH dataset, 80,000+ records) to help classify an input dataset.
 
 Training dataset - use attributes (sorted from the most important):
-1. `clean_text_interpretive_word` = containing clean text of an inscription
-2. `type_of_inscription_clean` = containing cleaned typology for inscriptions
-3. `material_clean` = cleaned material of the inscribed object
+1. `clean_text_interpretive_word` = containing clean text of an inscription, text
+2. `type_of_inscription_clean` = containing cleaned typology for inscriptions, 22 unique categories
+3. `material_clean` = cleaned material of the inscribed object, 34 unique categories
 
 Additional attributes that can be used to improve the classification:
 5. `height_cm` = cleaned maximal height of the object
@@ -47,7 +48,7 @@ The input dataset has no formal typology, it contains the following attributes (
 Based on the training dataset generate a classification model that would help researchers classify inscritpions in an input dataset. 
 Ideal outcome of the model - numeric representation of a probability with which an inscription X from the input dataset falls into the categorisation of inscription types. For example, inscription X from input dataset is categorised as 56 % milestone,  45 % decree,  10 % funerary inscription, 1 % list.
 
-**Project 2 - Road use on inscriptions**
+### Project 2 - Road use on inscriptions
 
 According to a widely accepted theory, inscriptions were clustered along the roads or in their proximity. Their contents were often communicating with the travellers, evidenced by the frequent use of invocations for travellers such as 'viator' or 'parodita' in the text of inscriptions. Other inscriptions mention the traffic on the roads and their use by the army or by the local communities as well. 
 
