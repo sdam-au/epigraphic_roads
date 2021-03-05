@@ -7,17 +7,20 @@
 
 ## Purpose
 
-The aim of this repository is to extract information about the road system and its use in the ancient Mediterranean on the basis of surviving Latin, and potentially also Greek, inscriptions. 
+The system of roads in the Roman State represented complex network of stone paved roads connecting Rome with all parts of the Empire, stretching all accross the Mediterranean with more of 50,000 miles of known paved roads. The roads were crutial infrastructure enabling fast movement of Roman armies, information circulation and state related traffic. However, roads and the related amenities were used also by the local inhabitans for transport of goods and people. The inscriptions were often placed next to the course of the road (milestones, funerary inscriptions) to convey imporatant information to the traveller. Moreover, the text of inscriptions contained details of road building, maintenance, physical description of the amenities, such as inns or horse-stations, bridges, gates, and the daily use of the road. 
+
+This project aims to to extract information related the road system and its use in the ancient Mediterranean on the basis of surviving Latin, and potentially also Greek, inscriptions.  
+
 
 ### Project 1 - Milestones
 
-Milestone is a type of inscription on stone that was placed next to the road so the travellers could orientate themselves in the space. Milestones usually contained information on who built or paid for the reconstruction of the road, who was responsible for the maintenance and to the administrative region of which city the road belonged. The distances were usually stated in Roman miles with the typical formula 'milia passuum' (literally: thousand steps).
+Milestone is a specific type of inscription on stone that was placed next to the road so the travellers could orientate themselves in the space. Milestones usually contained information on who built or paid for the reconstruction of the road, who was responsible for the maintenance and to the administrative region of which city the road belonged. The distances were usually stated in Roman miles with the typical formula 'milia passuum' (literally: thousand steps). 
 
-The location of milestones can help determine the course of the road, its date, and the spatial extent of the administrative units (cities in charge, so called 'caput viae').
+The location (geocoordinates) of milestones can help determine the course of the road, its date, and the spatial extent of the administrative units (cities in charge, so called 'caput viae'). However, not all milestones were categorised systematically and the set of rules 'what defines a milestone' is often vague and based on small samples from geographically limited regions.
 
-The purpose of this project is to find a subset of all milestones in the EDH dataset and on the basis of the subset determine a set of rules for future epigraphers to help them classify an inscription as a milestone. 
+The purpose of the Project 1 is to find a subset of all milestones in the EDH dataset and on the basis of the subset determine a set of rules for future epigraphers to help them classify an inscription as a milestone. 
 
-The set of rules will contain: 
+The set of rules will ideally contain: 
 
 1. the most common words occuring in a milestone
 1. most common material
@@ -82,13 +85,13 @@ Public link:
 
 `https://sciencedata.dk/public/b6b6afdb969d378b70929e86e58ad975/EDH_text_cleaned_2021-01-21.json`
 
-**Access with R (using custom `sdam` package)
+**Access with R (using custom `sdam` package)**
 
 ```r
 resp = request("EDH_text_cleaned_2021-01-21.json", path="/sharingin/648597@au.dk/SDAM_root/SDAM_data/EDH/public", method="GET")
 ```
 
-**Access with Python (using custom [SDDK package](https://pypi.org/project/sddk/))
+**Access with Python (using custom [SDDK package](https://pypi.org/project/sddk/))**
 
 ```python
 !pip install sddk
@@ -97,20 +100,34 @@ auth = sddk.configure("SDAM_root", "648597@au.dk") # where "648597@au.dk is own
 EDH_utf8 = sddk.read_file("public/b6b6afdb969d378b70929e86e58ad975/EDH_text_cleaned_2021-01-21.json", "df", auth)
 ```
 
+
 ### Data output (public folder on Sciencedata.dk)
 
 https://sciencedata.dk/shared/66cbabddae0e02c6ae6c15be9746990c
 
+# Repository structure
+
+Folder `data` on Github contains mostly spatial data, such as the extent of Roman Provinces (DARMC) and the course of the known Roman Roads (Barington Atlas of Greek and Roman World).
+
+Folder `output` contains visualisations and charts created by the scripts.
+
+Folder `scripts` contains scripts numbered according to their related project and in the sequence the should run. Scripts are both in R and Python.
+
 ## Scripts
 
-TBA
+**Project 1**
+
+R script [1_1_r_MILESTONES.Rmd](https://github.com/sdam-au/epigraphic_roads/blob/master/scripts/1_1_r_MILESTONES.Rmd) searches EDH database for all milestones as categorised by the type of inscription, type of object, anc commentary. The script also provides basic overview of milestones from the EDH database, including their text, physical description, location and date.
+
+Python script [1_2_py_MILESTONES_research.ipynb](https://github.com/sdam-au/epigraphic_roads/blob/master/scripts/1_2_py_MILESTONES_research.ipynb) searches the EDH database for all milestones analogically to the script 1_1. Unfinished.
+
+**Project 2**
  
+Python script [2_1_py_DECLINE_TERMS.ipynb](https://github.com/sdam-au/epigraphic_roads/blob/master/scripts/2_1_py_DECLINE_TERMS.ipynb) creates full declension paradigms for road-related terms.
 
+Python script [2_2_py_EXTRACTING_TERMS.ipynb](https://github.com/sdam-au/epigraphic_roads/blob/master/scripts/2_2_py_EXTRACTING_TERMS.ipynb) selects inscriptions from the EDH dataset containing road related terms (using the full declension paradigm from script 2_1).
 
-
-
-
-
+Python script [2_5_py_TEMPORAL_TERMS.ipynb](https://github.com/sdam-au/epigraphic_roads/blob/master/scripts/2_5_py_TEMPORAL_TERMS.ipynb) explores the inscriptions containing road related terms from script 2_2 in time. 
 
 
 
