@@ -35,13 +35,16 @@ Train a classification model (based on the data + metadata available through EDH
 Training dataset - use attributes (sorted from the most important):
 1. `clean_text_interpretive_word` = containing clean text of an inscription, text
 2. `type_of_inscription_clean` = containing cleaned typology for inscriptions, 22 unique categories
-3. `material_clean` = cleaned material of the inscribed object, 34 unique categories
+3. `type_of_inscription_certainty` = containg binary values (certain, uncertain) stating the level of confidence of the classification in `type_of_inscription_clean` 
+4. `material_clean` = cleaned material of the inscribed object, 34 unique categories
+5. `type_of_monument_clean` = cleaned typology of types of inscribed objects
+6. `type_of_monument_certainty` = containg binary values (certain, uncertain) stating the level of confidence of the classification in `type_of_monument_clean`
 
 Additional attributes that can be used to improve the classification:
-5. `height_cm` = cleaned maximal height of the object
-6. `width_cm` = cleaned maximal width of the object
-7. `depth_cm` = cleaned maximal depth of the object
-8. `type_of_monument_clean` = cleaned typology of types of inscribed objects
+
+1. `height_cm` = cleaned maximal height of the object
+2. `width_cm` = cleaned maximal width of the object
+3. `depth_cm` = cleaned maximal depth of the object
 
 The input dataset has no formal typology, it contains the following attributes (link to the dataset TBA)
 1. `clean_text_interpretive_word` = containing clean text of an inscription
@@ -49,7 +52,8 @@ The input dataset has no formal typology, it contains the following attributes (
 
 *Scenario:* 
 Based on the training dataset generate a classification model that would help researchers classify inscritpions in an input dataset. 
-Ideal outcome of the model - numeric representation of a probability with which an inscription X from the input dataset falls into the categorisation of inscription types. For example, inscription X from input dataset is categorised as 56 % milestone,  45 % decree,  10 % funerary inscription, 1 % list.
+
+Ideal outcome of the model - numeric representation of a probability with which an inscription X from the input dataset falls into the categorisation of inscription types. For example, `inscription X from input dataset is categorised as 56 % milestone,  45 % decree,  10 % funerary inscription, 1 % list.`
 
 ### Project 2 - Road use on inscriptions
 
@@ -59,9 +63,10 @@ I have created a set of Latin vocabularies related to the use of roads, their co
 
 I will then assess the usefulness of the method by spotchecking the text of inscriptions and the relevance of their text to the use of the road system. I will reevaluate the list of the vocabularies based on the findings.
 
-I will analyse the frequency of topics occuring on the road related inscriptions, e.g. commercial or military traffic on the roads, individual travellers, physical ammenities, building activities etc. and compare them over space and time (by the Roman Provinces, by centuries).
+I will analyse the frequency of topics occuring on the road related inscriptions, e.g. commercial or military traffic on the roads, individual travellers, physical ammenities, building activities etc. and compare them over space and time (by Roman Provinces, by centuries).
 
 As a next step, I will overlay the subset of isncriptions with the known datasets of the Roman roads (e.g. Barrington Atlas of the Greek and Roman world, Pleaides) in order to detect any spatial clusters of inscriptions away from the course of known roads. This was a new (undiscovered) Roman roads could be detected, but also the relation between roads and spatial dispositions of inscriptions can be verified.
+
 
 ## Authors
 * Petra Hermankova [![](https://orcid.org/sites/default/files/images/orcid_16x16.png)](https://orcid.org/0000-0002-6349-0540), SDAM project, Aarhus University, petra.hermankova@cas.au.dk
@@ -96,7 +101,7 @@ resp = request("EDH_text_cleaned_2021-01-21.json", path="/sharingin/648597@au.dk
 ```python
 !pip install sddk
 import sddk
-auth = sddk.configure("SDAM_root", "648597@au.dk") # where "648597@au.dk is owner of the shared folder, i.e. Vojtěch
+auth = sddk.configure("SDAM_root", "648597@au.dk") # where "648597@au.dk is owner of the shared folder
 EDH_utf8 = sddk.read_file("public/b6b6afdb969d378b70929e86e58ad975/EDH_text_cleaned_2021-01-21.json", "df", auth)
 ```
 

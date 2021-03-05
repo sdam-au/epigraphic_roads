@@ -74,8 +74,8 @@ What attributes (columns) might contain milestone related information? Let's dis
 EDH_tibble %>% 
   names()
 ```
-Based on the experience and previous explorations of the dataset, any milestone related information is most likely contained in the following attributes: `type_of_inscription_clean`, `type_of_monument_clean`, `commentary`,`support_objecttype`, `support_objecttype_text`, `keywords_term` and `keywords_term_text`.
 
+Based on the domain expertise and previous explorations of the dataset, any milestone related information is most likely contained in the following attributes: `type_of_inscription_clean`, `type_of_monument_clean`, `commentary`,`support_objecttype`, `support_objecttype_text`, `keywords_term` and `keywords_term_text`.
 
 ## Milestone as type of inscription
 
@@ -89,13 +89,31 @@ milestone_insc <- EDH_tibble %>%
   filter(type_of_inscription_clean == "mile-/leaguestone")
 nrow(milestone_insc)
 ```
+How many of them are certain vs uncertain?
+```{r}
+milestone_insc %>% 
+  count(type_of_inscription_certainty, sort=T)
+```
+
+What is their type of monument?
+```{r}
+milestone_insc %>% 
+  count(type_of_monument_clean, sort=T)
+```
+
+What is their material?
+```{r}
+milestone_insc %>% 
+  count(material_clean, sort=T)
+```
 
 ## Milestone as type of monument
 
 ```{r}
 unique(EDH_tibble$type_of_monument_clean)
 ```
-### How many inscriptions are categorised as milestone?
+
+### How many monuments are categorised as milestone?
 ```{r}
 milestone_monument <- EDH_tibble %>% 
   filter(EDH_tibble$type_of_monument_clean == "mile-/leaguestone")
@@ -103,8 +121,29 @@ milestone_monument <- EDH_tibble %>%
 nrow(milestone_monument)
 ```
 
+How many of them are certain vs uncertain?
+```{r}
+milestone_monument %>% 
+  count(type_of_monument_certainty, sort=T)
+```
+
+
+What is their type of inscription?
+```{r}
+milestone_monument %>% 
+  count(type_of_inscription_clean, sort=T)
+```
+
+What is their material?
+```{r}
+milestone_monument %>% 
+  count(material_clean, sort=T)
+```
+
+
 ## Milestone in the `commentary` attribute
-Inspect the commentary for milestone related comments
+Free text commentary also conatains infromation about milestones, however it is not structired in any way. 
+Inspect the commentary for milestone related comments. Note: commentary is mostly written in German.
 
 ### How many inscriptions contain any milestone-related commentary?
 ```{r}
@@ -115,6 +154,15 @@ nrow(milestone_comment)
 ### Explore the first six commentaries mentioning milestones
 ```{r}
 head(milestone_comment$commentary)
+```
+
+```{r}
+milestone_comment %>% 
+  count(type_of_inscription_clean, sort=T)
+```
+```{r}
+milestone_comment %>% 
+  count(type_of_monument_clean, sort=T)
 ```
 
 ## Milestone in the `support_objecttype` attribute 
@@ -160,9 +208,9 @@ EDH_tibble %>%
 The results are consistent and the free text corresponds with the LOD.
 
 
-## Combining all milestones
+## Combining all attributes related to milestones
 
-Now we will combine all milestones that have a word meilen- in `commentary` and are defined as milestones in the following attributes: `type_of_inscription_clean`, `type_of_monumnet_clean`,`support_objecttype`, `keywords_term`.
+Now we will combine all milestones that have a word meilen- in `commentary` and are defined as milestones in the following attributes: `type_of_inscription_clean`, `type_of_monument_clean`,`support_objecttype`, `keywords_term`.
 
 ```{r}
 milestone_all <- EDH_tibble %>%  
@@ -186,8 +234,17 @@ nrow(milestone_all)/(nrow(EDH_tibble)/100)
 What different types of inscriptions belong to the discussed group of milestones?
 ```{r}
 milestone_all %>% 
-  count(milestone_all$type_of_inscription_clean, sort = TRUE)
+  count(type_of_inscription_clean, sort = TRUE)
 ```
+
+How certain the information is?
+```{r}
+milestone_all %>% 
+  count(type_of_inscription_clean, type_of_inscription_certainty, sort = TRUE)
+```
+
+
+
 ## Type of monument
 
 What different types of monuments belong to the discussed group of milestones?
@@ -195,6 +252,14 @@ What different types of monuments belong to the discussed group of milestones?
 milestone_all %>% 
   count(milestone_all$type_of_monument_clean, sort = TRUE)
 ```
+
+How certain the information is?
+```{r}
+milestone_all %>% 
+  count(type_of_monument_clean, type_of_monument_certainty, sort = TRUE)
+```
+
+
 
 ## Language
 
@@ -218,6 +283,7 @@ What are the dimensions of the discussed group of milestones?
 milestone_dims <- milestone_all %>% 
   dplyr::select(height_cm, width_cm, depth_cm)
 milestone_dims <- as.data.frame(milestone_dims)
+milestone_dims
 ```
 
 ### Basic statistical summary of Height in cm
@@ -237,6 +303,114 @@ An overview statistics for all Depths.
 ```{r}
 summary(milestone_dims$depth_cm)
 ```
+
+# Text exploration
+
+```{r}
+library(tidytext)
+
+milestone_all_text<- milestone_all %>% 
+  unnest_tokens(word, clean_text_interpretive_word)
+```
+
+## How many words total
+```{r}
+nrow(milestone_all_text)
+```
+
+## The most common words
+
+```{r}
+milestone_all_text %>% 
+  count(word, sort=T)
+```
+
+
+## N-grams
+
+### Bigram
+```{r}
+milestone_all_bigram<- milestone_all %>% 
+  unnest_tokens(output = bigram, input = clean_text_interpretive_word, drop = FALSE, token = "ngrams", n = 2, collapse = FALSE)
+```
+```{r}
+milestone_all_bigram %>% 
+  count(bigram, sort=T)
+```
+
+### Trigram
+```{r}
+milestone_all_trigram<- milestone_all %>% 
+  unnest_tokens(output = bigram, input = clean_text_interpretive_word, drop = FALSE, token = "ngrams", n = 3, collapse = FALSE, to_lower = FALSE)
+
+milestone_all_trigram %>% 
+  count(bigram, sort=T)
+```
+
+## Detect all Latin numerals
+
+```{r}
+library(googlesheets4)
+
+gs4_deauth() # de-uthorized mode, no need of authentication token (if the spreadsheet is public)
+numerals<- read_sheet("https://docs.google.com/spreadsheets/d/1RKRNMlSjB3yF3FHXPLhGfnLJis63300R9x65BdAKa8o/edit?usp=sharing", sheet = "Numerals")
+
+numerals
+```
+
+Latin numerals on milestones:
+```{r}
+milestone_all_text %>% 
+  filter(word %in% numerals$Latin_num) %>% 
+  count(word, sort = T)
+```
+
+Greek numerals on milestones:
+```{r}
+milestone_all_text %>% 
+  filter(word %in% numerals$Greek_num) %>% 
+  count(word,  sort = T)
+```
+
+### Detecting distance in Roman miles
+
+```{r}
+distances<- as.data.frame(str_extract(milestone_all$clean_text_interpretive_word, "(?<=milia passuum ).+"))
+distances <- distances %>% 
+  rename(extracted = `str_extract(milestone_all$clean_text_interpretive_word, "(?<=milia passuum ).+")`)
+unique(distances$extracted)
+```
+
+
+
+
+
+
+## Building a stopword list
+```{r}
+stopwords<- c("et", "a", "ab", "ad", "per", "ac", "in", "καὶ", "τὸ", "ἀπὸ", "ἡ")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Spatial exploration
 
@@ -362,8 +536,8 @@ library(raster)
 library(sf)
 library(sp)
 ```
-source Roads: http://awmc.unc.edu/awmc/map_data/shapefiles/ba_roads/
-source Roman provinces (AD 200): http://awmc.unc.edu/awmc/map_data/shapefiles/cultural_data/political_shading/roman_empire_ad_200/shape/
+Source of Roads shapefile: http://awmc.unc.edu/awmc/map_data/shapefiles/ba_roads/
+Source of Roman provinces (AD 200): http://awmc.unc.edu/awmc/map_data/shapefiles/cultural_data/political_shading/roman_empire_ad_200/shape/
 
 ```{r, echo=FALSE}
 setwd("~/Github/epigraphic_roads")
@@ -531,7 +705,7 @@ dates %>%
   geom_histogram(fill="black", size=10, binwidth = 10) +
   labs(x = "Length of date interval", y = "Number of inscription", title = "The length of date interval (not_before - not_after)", subtitle = "n = 1172" ) +
   theme_linedraw(base_size = 12) +
-  scale_x_discrete(limits=c(1, 25, 50, 75, 100,200, 300, 400, 500, 600))
+  scale_x_discrete(limits=c(0,25, 50, 75, 100,200, 300, 400, 500, 600))
 ```
 
 ### What is the basic statistics for the date interval?
@@ -562,7 +736,7 @@ dates %>%
   geom_vline(aes(xintercept=250))
 ```
 ```{r}
-ggsave("milestones_mean_10yrs.png", width = 10, height= 6)
+ggsave("../output/milestones_mean_10yrs.png", width = 10, height= 6)
 ```
 
 ### Plotting the result in 50 year bins
