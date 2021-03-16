@@ -93,7 +93,8 @@ Public link:
 **Access with R (using custom `sdam` package)**
 
 ```r
-resp = request("EDH_text_cleaned_2021-01-21.json", path="/sharingin/648597@au.dk/SDAM_root/SDAM_data/EDH/public", method="GET")
+resp = request("EDH_text_cleaned_2021-01-21.json", path="/sharingin/648597@au.dk/SDAM_root/SDAM_data/EDH/public", method="GET", anonymous = TRUE, cred = NULL)
+
 ```
 
 **Access with Python (using custom [SDDK package](https://pypi.org/project/sddk/))**
