@@ -93,7 +93,7 @@ Public link:
 **Access with R (using custom `sdam` package)**
 
 ```r
-resp = request("EDH_text_cleaned_2021-01-21.json", path="/sharingin/648597@au.dk/SDAM_root/SDAM_data/EDH/public", method="GET", anonymous = TRUE, cred = NULL)
+resp = request("EDH_text_cleaned_2021-01-21.json", path="public/b6b6afdb969d378b70929e86e58ad975/", method="GET", anonymous = TRUE, cred = NULL)
 
 ```
 
@@ -103,7 +103,7 @@ resp = request("EDH_text_cleaned_2021-01-21.json", path="/sharingin/648597@au.dk
 !pip install sddk
 import sddk
 auth = sddk.configure("SDAM_root", "648597@au.dk") # where "648597@au.dk is owner of the shared folder
-EDH_utf8 = sddk.read_file("public/b6b6afdb969d378b70929e86e58ad975/EDH_text_cleaned_2021-01-21.json", "df", auth)
+EDH = sddk.read_file("public/b6b6afdb969d378b70929e86e58ad975/EDH_text_cleaned_2021-01-21.json", "df", auth)
 ```
 
 
@@ -123,7 +123,7 @@ Folder `scripts` contains scripts numbered according to their related project an
 
 **Project 1**
 
-R script [1_1_r_MILESTONES.Rmd](https://github.com/sdam-au/epigraphic_roads/blob/master/scripts/1_1_r_MILESTONES.Rmd) searches EDH database for all milestones as categorised by the type of inscription, type of object, anc commentary. The script also provides basic overview of milestones from the EDH database, including their text, physical description, location and date.
+R script [1_1_r_MILESTONES.Rmd](https://github.com/sdam-au/epigraphic_roads/blob/master/scripts/1_1_r_MILESTONES.Rmd) searches EDH database for all milestones as categorised by the type of inscription, type of object, and commentary. The script also provides basic overview of milestones from the EDH database, including their text, physical description, location and date.
 
 Python script [1_2_py_MILESTONES_research.ipynb](https://github.com/sdam-au/epigraphic_roads/blob/master/scripts/1_2_py_MILESTONES_research.ipynb) searches the EDH database for all milestones analogically to the script 1_1. Unfinished.
 
