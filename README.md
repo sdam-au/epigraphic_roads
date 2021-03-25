@@ -83,6 +83,7 @@ Epigraphic dataset - Epigraphic Database Heidelberg, see a series of scripts in 
 Description of individual attributes and their source 
 
 [EDH dataset metadata](https://docs.google.com/spreadsheets/d/1O_4EH-POKqUgq5K-B1DbbJQ8WWF0NQ6s12dCiW29MbA/edit?usp=sharing)
+[EDCS dataset metadata](https://docs.google.com/spreadsheets/d/17k4quLM6RiEu821n3caitK8labzuurIGmzf0W1bHnss/edit?usp=sharing)
 
 ### Input dataset 
 
@@ -121,13 +122,18 @@ Folder `scripts` contains scripts numbered according to their related project an
 
 ## Scripts
 
-**Project 1**
+**Project 1** - Milestones
 
-R script [1_1_r_MILESTONES.Rmd](https://github.com/sdam-au/epigraphic_roads/blob/master/scripts/1_1_r_MILESTONES.Rmd) searches EDH database for all milestones as categorised by the type of inscription, type of object, and commentary. The script also provides basic overview of milestones from the EDH database, including their text, physical description, location and date.
+R script [1_1_r_MILESTONES_EDH.Rmd](https://github.com/sdam-au/epigraphic_roads/blob/master/scripts/1_1_r_MILESTONES.Rmd) searches EDH database for all milestones as categorised by the type of inscription, type of object, and commentary. The script also provides basic overview of milestones from the EDH database, including their text, physical description, location and date.
+> HTML version: [EDH_milestones](https://sdam-au.github.io/epigraphic_roads/scripts/1_1_r_MILESTONES_EDH.html)
 
-Python script [1_2_py_MILESTONES_research.ipynb](https://github.com/sdam-au/epigraphic_roads/blob/master/scripts/1_2_py_MILESTONES_research.ipynb) searches the EDH database for all milestones analogically to the script 1_1. Unfinished.
+R script [1_1_r_MILESTONES_EDCS.Rmd](https://github.com/sdam-au/epigraphic_roads/blob/master/scripts/1_1_r_MILESTONES.Rmd) searches EDCS database for all milestones as categorised by the type of inscription, type of object, and commentary. The script also provides basic overview of milestones from the EDCS database, including their text, physical description, location and date.
+> HTML version: [EDCS_milestones](https://sdam-au.github.io/epigraphic_roads/scripts/1_1_r_MILESTONES_EDCS.html)
 
-**Project 2**
+Python script [1_2_py_MILESTONES_research.ipynb](https://github.com/sdam-au/epigraphic_roads/blob/master/scripts/1_2_py_MILESTONES_research.ipynb) - exploration of milestones, unfinished.
+
+
+**Project 2** - Inscriptions related to roads
  
 Python script [2_1_py_DECLINE_TERMS.ipynb](https://github.com/sdam-au/epigraphic_roads/blob/master/scripts/2_1_py_DECLINE_TERMS.ipynb) creates full declension paradigms for road-related terms.
 
