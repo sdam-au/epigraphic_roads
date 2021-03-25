@@ -122,7 +122,7 @@ Folder `scripts` contains scripts numbered according to their related project an
 
 ## Scripts
 
-**Project 1** - Milestones
+### Project 1 - Milestones
 
 R script [1_1_r_MILESTONES_EDH.Rmd](https://github.com/sdam-au/epigraphic_roads/blob/master/scripts/1_1_r_MILESTONES.Rmd) searches EDH database for all milestones as categorised by the type of inscription, type of object, and commentary. The script also provides basic overview of milestones from the EDH database, including their text, physical description, location and date.
 > HTML version: [EDH_milestones](https://sdam-au.github.io/epigraphic_roads/scripts/1_1_r_MILESTONES_EDH.html)
@@ -133,7 +133,7 @@ R script [1_1_r_MILESTONES_EDCS.Rmd](https://github.com/sdam-au/epigraphic_roads
 Python script [1_2_py_MILESTONES_research.ipynb](https://github.com/sdam-au/epigraphic_roads/blob/master/scripts/1_2_py_MILESTONES_research.ipynb) - exploration of milestones, unfinished.
 
 
-**Project 2** - Inscriptions related to roads
+### Project 2 - Inscriptions related to roads
  
 Python script [2_1_py_DECLINE_TERMS.ipynb](https://github.com/sdam-au/epigraphic_roads/blob/master/scripts/2_1_py_DECLINE_TERMS.ipynb) creates full declension paradigms for road-related terms.
 
