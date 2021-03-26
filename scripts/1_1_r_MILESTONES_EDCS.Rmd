@@ -146,6 +146,20 @@ milestone_EDCS %>%
 ```
 
 
+## Milestones present in EDH
+Some milestones might be present in EDCS and in EDH as well.
+
+```{r}
+milestones_EDCS_EDH<- milestone_EDCS %>% 
+  filter(Links %in% str_subset(EDCS_tibble$Links, "inschrift\\/HD\\d{5,6}")) %>% 
+  mutate(EDH_id = str_extract(milestones_EDCS_EDH$Links, "HD\\d{5,6}"))
+
+library(tidyr)
+unnest_longer(milestones_EDCS_EDH, inscr_type) %>% 
+  count(inscr_type, sort= T)
+
+```
+
 # Text exploration
 
 ```{r}

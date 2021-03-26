@@ -1,0 +1,359 @@
+---
+title: "Road related inscriptions from Bithynia and Sardinia"
+author: "Petra Hermankova"
+date: "25/03/2021"
+output:
+  html_document:
+    theme: united
+    toc: yes
+    toc_float: true
+    number_sections: true
+    toc_depth: 2
+    df_print: paged 
+---
+
+# Initial setup
+
+## Setup of the environment:
+
+```{r setup, echo=TRUE, message=FALSE}
+devtools::install_github("sdam-au/sdam") # loading SDAM custom package, if not working try devtools::install_github("mplex/cEDCSar", subdir="pkg/sdam")
+#devtools::install_github("mplex/cEDCSar", subdir="pkg/sdam")
+library(tidyverse)
+library(sdam)
+library(jsonlite)
+library(getPass)
+library(formatR)
+library(leaflet)
+```
+
+This notebook explores all the milestones from Roman provinces **Bithynia** and **Sardinia** in the **Epigraphic Database Clauss-Slaby** (http://www.manfredclauss.de/, henceforth EDCS). The primary aim is to:
+
+- find all inscriptions categorized as 'milestones'
+- provide basic descriptive statistics: how many there are, what categories of monuments we have, what materials they are made from, where do they come from etc. 
+- display all the milestones on the map along with the map of Roman provinces and Roman roads
+
+The script takes the reader through all the steps of selection, descriptive statistics and through the various displays on the interactive map. Address all the questions and comments to `petra.hermankova@cas.au.dk`.
+
+## Loading data
+Load the dataset, if you have Sciencedata.dk credentials
+
+```{r, echo=FALSE}
+mycred_secret<- readLines("~/mysecret.txt")
+```
+
+```{r, loading data}
+resp2 = request("EDCS_text_cleaned_2021-03-01.json", path="/sharingin/648597@au.dk/SDAM_root/SDAM_data/EDCS/public", method="GET", cred=mycred_secret)
+```
+
+OR anonymously:
+```{r, loading data public, eval=FALSE}
+resp2 = request("EDCS_text_cleaned_2021-03-01.json", path="/public/1f5f56d09903fe259c0906add8b3a55e/", method="GET", anonymous = TRUE, cred = NULL)
+```
+
+Make a list and tibble from the downloaded dataset
+```{r}
+list_json2 <- jsonlite::fromJSON(resp2)
+EDCS_tibble = as_tibble(list_json2)
+```
+
+```{r}
+remove(list_json2, resp2)
+```
+
+```{r}
+names(EDCS_tibble)
+```
+
+# Finding all milestones in Bithynia and Sardinia
+```{r}
+Bithynia_milestones<- EDCS_tibble %>% 
+  filter(inscr_type %in% str_subset(inscr_type, "miliaria")) %>% 
+  filter(province == "Pontus et Bithynia" ) %>% 
+  select(`EDCS-ID`, province, place, start_yr, end_yr_1, inscr_type, inscription, clean_text_interpretive_word, language, Latitude, Longitude, Material) %>% 
+  unnest_wider(inscr_type) %>% 
+  rename("inscr_type1" = "...1", "inscr_type2" = "...2","inscr_type3" = "...3")
+
+
+Sardinia_milestones<- EDCS_tibble %>% 
+  filter(inscr_type %in% str_subset(inscr_type, "miliaria")) %>% 
+  filter(province == "Sardinia") %>% 
+  select(`EDCS-ID`, province, place, start_yr, end_yr_1, inscr_type, inscription, clean_text_interpretive_word, language, Latitude, Longitude, Material) %>% 
+  unnest_wider(inscr_type) %>% 
+  rename("inscr_type1" = "...1", "inscr_type2" = "...2","inscr_type3" = "...3")
+
+```
+
+## Export as CSV
+```{r}
+getwd()
+write.csv(Bithynia_milestones, "../output/Milestones_EDCS_Bithynia.csv", row.names = T)
+write.csv(Sardinia_milestones, "../output/Milestones_EDCS_Sardinia.csv", row.names = T)
+```
+
+### All funerary inscriptions in Bithynia and Sardinia
+
+```{r}
+funerary_Bithynia<- EDCS_tibble %>% 
+  filter(province == "Pontus et Bithynia") %>%
+  filter(inscr_type %in% str_subset(inscr_type, "tituli sepulcrales")) %>% 
+  select(`EDCS-ID`, province, place, start_yr, end_yr_1, inscr_type, inscription, clean_text_interpretive_word, language, Latitude, Longitude, Material) %>% 
+  unnest_wider(inscr_type) %>% 
+  rename("inscr_type1" = "...1", "inscr_type2" = "...2","inscr_type3" = "...3")
+
+funerary_Bithynia
+```
+
+```{r}
+funerary_Sardinia<- EDCS_tibble %>% 
+  filter(province == "Sardinia") %>%
+  filter(inscr_type %in% str_subset(inscr_type, "tituli sepulcrales")) %>% 
+  select(`EDCS-ID`, province, place, start_yr, end_yr_1, inscr_type, inscription, clean_text_interpretive_word, language, Latitude, Longitude, Material) %>% 
+  unnest_wider(inscr_type) %>% 
+  rename("inscr_type1" = "...1", "inscr_type2" = "...2","inscr_type3" = "...3","inscr_type4" = "...4","inscr_type5" = "...5")
+
+funerary_Sardinia
+```
+
+## Export as CSV
+```{r}
+getwd()
+write.csv(funerary_Sardinia, "../output/funerary_EDCS_Sardinia.csv", row.names = T)
+write.csv(funerary_Bithynia, "../output/funerary_EDCS_Bithynia.csv", row.names = T)
+```
+
+
+# Inscriptions with road-related terms
+
+```{r, loading data public terms, eval=FALSE}
+#resp3 = request("EDCS_terms_2021-03-25.json", path="/public/66cbabddae0e02c6ae6c15be9746990c/", method="GET", anonymous = TRUE, cred = NULL)
+resp3 = request("EDCS_terms_2021-03-25.json", path="/public/66cbabddae0e02c6ae6c15be9746990c/", method="GET", cred=mycred_secret)
+
+list_json3 <- jsonlite::fromJSON(resp3, flatten = TRUE, simplifyDataFrame=T)
+EDCS_vocabs <- as_tibble(list_json3)
+```
+
+```{r}
+remove(list_json3, resp3, mycred_secret)
+```
+
+```{r}
+head(EDCS_vocabs)
+EDCS_vocabs %>% 
+  filter(terms_N != 0) -> EDCS_road_terms
+```
+
+```{r}
+road_json<- toJSON(EDCS_road_terms, auto_unbox = TRUE)
+road_list<- fromJSON(road_json)
+EDCS_road = as_tibble(road_list)
+EDCS_road
+```
+
+Cleaning up memory:
+```{r}
+remove(EDCS_road_terms, road_json, road_list)
+```
+
+
+## Road related isncriptions in Sardinia
+```{r}
+road_Sardinia<- EDCS_road %>% 
+  filter(province == "Sardinia") %>% 
+  select(`EDCS-ID`, province, place, start_yr, end_yr_1, inscr_type, inscription, clean_text_interpretive_word, language, Latitude, Longitude, Material, terms, terms_N) %>% 
+  unnest_wider(inscr_type) %>% 
+  rename("inscr_type1" = "...1", "inscr_type2" = "...2","inscr_type3" = "...3","inscr_type4" = "...4") %>% 
+  unnest_wider(terms) %>% 
+  rename("term1" = "...1", "term2" = "...2") %>% 
+  unnest_wider(start_yr) %>% rename("start_yr" = "...1") %>% 
+  unnest_wider(end_yr_1) %>% rename("end_yr_1" = "...1") %>% 
+  unnest_wider(language) %>% rename("language" = "...1") %>% 
+  unnest_wider(Latitude) %>% rename("Latitude" = "...1") %>% 
+  unnest_wider(Longitude) %>% rename("Longitude" = "...1") %>% 
+  unnest_wider(Material) %>% rename("Material" = "...1")
+
+```
+## Road related isncriptions in Bithynia
+```{r}
+road_Bithynia<- EDCS_road %>% 
+  filter(province == "Pontus et Bithynia") %>% 
+  select(`EDCS-ID`, province, place, start_yr, end_yr_1, inscr_type, inscription, clean_text_interpretive_word, language, Latitude, Longitude, Material, terms, terms_N) %>% 
+  unnest_wider(inscr_type) %>% 
+  rename("inscr_type1" = "...1", "inscr_type2" = "...2","inscr_type3" = "...3") %>% 
+  unnest_wider(terms) %>% 
+  rename("term1" = "...1", "term2" = "...2") %>% 
+  unnest_wider(start_yr) %>% rename("start_yr" = "...1") %>% 
+  unnest_wider(end_yr_1) %>% rename("end_yr_1" = "...1") %>% 
+  unnest_wider(language) %>% rename("language" = "...1") %>% 
+  unnest_wider(Latitude) %>% rename("Latitude" = "...1") %>% 
+  unnest_wider(Longitude) %>% rename("Longitude" = "...1") %>% 
+  unnest_wider(Material) %>% rename("Material" = "...1")
+```
+
+## Export as CSV
+```{r}
+getwd()
+write.csv(road_Sardinia, "../output/Road_terms_EDCS_Sardinia.csv", row.names = T)
+write.csv(road_Bithynia, "../output/Road_terms_EDCS_Bithynia.csv", row.names = T)
+```
+
+
+
+
+# Maps with roads
+
+```{r, echo=FALSE}
+library(rgdal)
+library(raster)
+library(sf)
+library(sp)
+```
+Source of Roads shapefile: http://awmc.unc.edu/awmc/map_data/shapefiles/ba_roads/
+Source of Roman provinces (AD 200): http://awmc.unc.edu/awmc/map_data/shapefiles/cultural_data/political_shading/roman_empire_ad_200/shape/
+
+```{r, echo=FALSE}
+setwd("~/Github/epigraphic_roads")
+dir.create("../data/ba_roads")
+unzip("../data/ba_roads.zip", exdir = "../data/ba_roads/")
+dir.create("../data/roman_empire_200_ad_provinces")
+unzip("../data/roman_empire_ad_200_provinces.zip", exdir = "../data/roman_empire_200_ad_provinces")
+```
+
+```{r, echo=FALSE}
+roads <- st_read("../data/ba_roads/ba_roads.shp")
+provinces200 <- st_read("../data/roman_empire_200_ad_provinces/roman_empire_ad_200_provinces.shp")
+```
+
+```{r, echo=FALSE}
+orbis <- readLines("https://raw.githubusercontent.com/emeeks/orbis_v2/master/base_routes.geojson") %>% paste(collapse = "\n") %>% 
+  fromJSON(simplifyVector = FALSE)
+```
+
+```{r}
+Bithynia_milestones$Latitude <- as.numeric(Bithynia_milestones$Latitude)
+Bithynia_milestones$Longitude <- as.numeric(Bithynia_milestones$Longitude)
+
+funerary_Bithynia$Latitude <- as.numeric(funerary_Bithynia$Latitude)
+funerary_Bithynia$Longitude <- as.numeric(funerary_Bithynia$Longitude)
+
+road_Bithynia$Latitude <- as.numeric(road_Bithynia$Latitude)
+road_Bithynia$Longitude <- as.numeric(road_Bithynia$Longitude)
+```
+
+
+
+# Bithynia
+```{r}
+map_Bithynia_EDCS<- leaflet(width="100%") %>%
+ #addProviderTiles("Stamen.Watercolor")%>% # Add CartoDB map tiles
+ addProviderTiles("Stamen.TerrainBackground")%>% # Add CartoDB map tiles
+ #addProviderTiles("Esri.WorldTopoMap", group = "Topo") %>%
+ #addProviderTiles("Esri.WorldImagery", group = "ESRI Aerial") %>%
+  setView( lng = 31.6110479, lat = 40.7332953, , zoom = 6 ) %>%
+  #setMaxBounds(lat1=43.633977, lng1 =-11.227926 , lat2=35.133882 , lng2=50.882336) %>%
+ addPolylines(data = roads, color = "purple", weight = 1, opacity = 0.7) %>% 
+  addCircles(lng = Bithynia_milestones$Longitude, 
+             lat = Bithynia_milestones$Latitude, opacity = 0.5, radius = 10, fill = TRUE, color = "blue" , fillColor = "red",
+             popup = paste0("<b> InscriptionID: </b>", Bithynia_milestones$`EDCS-ID`, 
+                            "<br><b> Ancient findspot: </b>", Bithynia_milestones$place,
+                           "<br><b> Type of inscription: </b>", Bithynia_milestones$inscr_type,
+                              "<br><b> Material: </b>", Bithynia_milestones$Material,
+                              "<br><b> Not before (date): </b>", Bithynia_milestones$start_yr,
+                             "<br><b> Not after (date): </b>", Bithynia_milestones$end_yr_1,
+                                "<br><b> Commentary: </b>", Bithynia_milestones$Comment),
+             ) %>% 
+  addCircles(lng = funerary_Bithynia$Longitude, 
+             lat = funerary_Bithynia$Latitude, opacity = 0.5, radius = 10, fill = TRUE, color = "orange" , fillColor = "red",
+             popup = paste0("<b> InscriptionID: </b>", funerary_Bithynia$`EDCS-ID`, 
+                            "<br><b> Ancient findspot: </b>", funerary_Bithynia$place,
+                           "<br><b> Type of inscription: </b>", funerary_Bithynia$inscr_type,
+                              "<br><b> Material: </b>", funerary_Bithynia$Material,
+                              "<br><b> Not before (date): </b>", funerary_Bithynia$start_yr,
+                             "<br><b> Not after (date): </b>", funerary_Bithynia$end_yr_1,
+                                "<br><b> Commentary: </b>", funerary_Bithynia$Comment),
+             ) %>% 
+  addCircles(lng = road_Bithynia$Longitude, 
+             lat = road_Bithynia$Latitude, opacity = 0.5, radius = 10, fill = TRUE, color = "yellow" , fillColor = "red",
+             popup = paste0("<b> InscriptionID: </b>", road_Bithynia$`EDCS-ID`, 
+                            "<br><b> Ancient findspot: </b>", road_Bithynia$place,
+                           "<br><b> Type of inscription: </b>", road_Bithynia$inscr_type,
+                              "<br><b> Material: </b>", road_Bithynia$Material,
+                              "<br><b> Not before (date): </b>", road_Bithynia$start_yr,
+                             "<br><b> Not after (date): </b>", road_Bithynia$end_yr_1,
+                                "<br><b> Commentary: </b>", road_Bithynia$Comment),
+             ) %>%
+addLegend(position = "topright",
+  colors = c("Blue", "Orange", "Yellow", "Purple"),
+  labels = c("Milestones", "Funerary insc", "Road related insc", "Roman roads (BA atlas)"), opacity = 1,
+  title = "Road related inscriptions in Bythinia" 
+)
+map_Bithynia_EDCS
+
+```
+
+# Sardinia
+```{r}
+Sardinia_milestones$Latitude <- as.numeric(Sardinia_milestones$Latitude)
+Sardinia_milestones$Longitude <- as.numeric(Sardinia_milestones$Longitude)
+
+funerary_Sardinia$Latitude <- as.numeric(funerary_Sardinia$Latitude)
+funerary_Sardinia$Longitude <- as.numeric(funerary_Sardinia$Longitude)
+
+road_Sardinia$Latitude <- as.numeric(road_Sardinia$Latitude)
+road_Sardinia$Longitude <- as.numeric(road_Sardinia$Longitude)
+```
+
+
+```{r}
+map_Sardinia_EDCS<- leaflet(width="100%") %>%
+ #addProviderTiles("Stamen.Watercolor")%>% # Add CartoDB map tiles
+ addProviderTiles("Stamen.TerrainBackground")%>% # Add CartoDB map tiles
+ #addProviderTiles("Esri.WorldTopoMap", group = "Topo") %>%
+ #addProviderTiles("Esri.WorldImagery", group = "ESRI Aerial") %>%
+  setView( lng = 9.087933, lat = 40.070653, , zoom = 7 ) %>%
+  #setMaxBounds(lat1=43.633977, lng1 =-11.227926 , lat2=35.133882 , lng2=50.882336) %>%
+ addPolylines(data = roads, color = "purple", weight = 1, opacity = 0.7) %>% 
+  addCircles(lng = Sardinia_milestones$Longitude, 
+             lat = Sardinia_milestones$Latitude, opacity = 0.5, radius = 10, fill = TRUE, color = "blue" , fillColor = "red",
+             popup = paste0("<b> InscriptionID: </b>", Sardinia_milestones$`EDCS-ID`, 
+                            "<br><b> Ancient findspot: </b>", Sardinia_milestones$place,
+                           "<br><b> Type of inscription: </b>", Sardinia_milestones$inscr_type,
+                              "<br><b> Material: </b>", Sardinia_milestones$Material,
+                              "<br><b> Not before (date): </b>", Sardinia_milestones$start_yr,
+                             "<br><b> Not after (date): </b>", Sardinia_milestones$end_yr_1,
+                                "<br><b> Commentary: </b>", Sardinia_milestones$Comment),
+             ) %>% 
+  addCircles(lng = funerary_Sardinia$Longitude, 
+             lat = funerary_Sardinia$Latitude, opacity = 0.5, radius = 10, fill = TRUE, color = "orange" , fillColor = "red",
+             popup = paste0("<b> InscriptionID: </b>", funerary_Sardinia$`EDCS-ID`, 
+                            "<br><b> Ancient findspot: </b>", funerary_Sardinia$place,
+                           "<br><b> Type of inscription: </b>", funerary_Sardinia$inscr_type,
+                              "<br><b> Material: </b>", funerary_Sardinia$Material,
+                              "<br><b> Not before (date): </b>", funerary_Sardinia$start_yr,
+                             "<br><b> Not after (date): </b>", funerary_Sardinia$end_yr_1,
+                                "<br><b> Commentary: </b>", funerary_Sardinia$Comment),
+             ) %>% 
+  addCircles(lng = road_Sardinia$Longitude, 
+             lat = road_Sardinia$Latitude, opacity = 0.5, radius = 10, fill = TRUE, color = "yellow" , fillColor = "red",
+             popup = paste0("<b> InscriptionID: </b>", road_Sardinia$`EDCS-ID`, 
+                            "<br><b> Ancient findspot: </b>", road_Sardinia$place,
+                           "<br><b> Type of inscription: </b>", road_Sardinia$inscr_type,
+                              "<br><b> Material: </b>", road_Sardinia$Material,
+                              "<br><b> Not before (date): </b>", road_Sardinia$start_yr,
+                             "<br><b> Not after (date): </b>", road_Sardinia$end_yr_1,
+                                "<br><b> Commentary: </b>", road_Sardinia$Comment),
+             ) %>%
+addLegend(position = "topright",
+  colors = c("Blue", "Orange", "Yellow", "Purple"),
+  labels = c("Milestones", "Funerary insc", "Road related insc", "Roman roads (BA atlas)"), opacity = 1,
+  title = "Road related inscriptions in Bythinia" 
+)
+map_Sardinia_EDCS
+
+```
+```{r}
+library(oceanis)
+export_png(map_Sardinia_EDCS, "../output/", "Inscriptions_EDCS_Sardinia")
+export_png(map_Bithynia_EDCS, "../output/", "Inscriptions_EDCS_Bithynia")
+```
+

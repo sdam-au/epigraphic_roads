@@ -1,0 +1,324 @@
+{
+    "millia passuum": [
+        "millia passuum",
+        "millie passuum",
+        "millias passuum",
+        "milliae passuum",
+        "milliarum passuum",
+        "milliam passuum",
+        "milliis passuum"
+    ],
+    "curator viarum": [
+        "curatorem viarum",
+        "curatores viarum",
+        "curator viarum",
+        "curatore viarum",
+        "curatori viarum",
+        "curatoribus viarum",
+        "curatorum viarum",
+        "curatoris viarum"
+    ],
+    "deverticulum": [
+        "deverticulorum",
+        "deverticulis",
+        "deverticulum",
+        "deverticulo",
+        "deverticuli",
+        "deverticula"
+    ],
+    "diverticulum": [
+        "diverticulum",
+        "diverticulis",
+        "diverticulorum",
+        "diverticuli",
+        "diverticulo",
+        "diverticula"
+    ],
+    "tabellarium": [
+        "tabellariis",
+        "tabellaria",
+        "tabellario",
+        "tabellarii",
+        "tabellarium",
+        "tabellariorum"
+    ],
+    "itinerarium": [
+        "itineraria",
+        "itinerariorum",
+        "itinerario",
+        "itinerarii",
+        "itinerariis",
+        "itinerarium"
+    ],
+    "vehiculatio": [
+        "vehiculationes",
+        "vehiculationum",
+        "vehiculatione",
+        "vehiculatio",
+        "vehiculationem",
+        "vehiculationi",
+        "vehiculationis",
+        "vehiculationibus"
+    ],
+    "caput viae": [
+        "caput viae",
+        "capite viae",
+        "capiti viae",
+        "capitum viae",
+        "capitis viae",
+        "capitibus viae",
+        "capita viae"
+    ],
+    "milliarium": [
+        "milliarium",
+        "milliariis",
+        "milliariorum",
+        "milliario",
+        "milliaria",
+        "milliarii"
+    ],
+    "angiportus": [
+        "angiportibus",
+        "angiportui",
+        "angiportum",
+        "angiportuum",
+        "angiportu",
+        "angiportus"
+    ],
+    "tabelarium": [
+        "tabelaria",
+        "tabelarium",
+        "tabelarii",
+        "tabelariorum",
+        "tabelario",
+        "tabelariis"
+    ],
+    "miliarium": [
+        "miliariorum",
+        "miliarii",
+        "miliaria",
+        "miliario",
+        "miliarium",
+        "miliariis"
+    ],
+    "carpentum": [
+        "carpenti",
+        "carpentum",
+        "carpenta",
+        "carpentis",
+        "carpentorum",
+        "carpento"
+    ],
+    "vehiculum": [
+        "vehiculi",
+        "vehiculorum",
+        "vehiculum",
+        "vehiculis",
+        "vehiculo",
+        "vehicula"
+    ],
+    "incessus": [
+        "incessibus",
+        "incessum",
+        "incessu",
+        "incessus",
+        "incessui",
+        "incessuum"
+    ],
+    "iumentum": [
+        "iumentum",
+        "iumentorum",
+        "iumento",
+        "iumenti",
+        "iumenta",
+        "iumentis"
+    ],
+    "compitum": [
+        "compitum",
+        "compitis",
+        "compita",
+        "compiti",
+        "compito",
+        "compitorum"
+    ],
+    "terminus": [
+        "termini",
+        "terminus",
+        "terminum",
+        "terminorum",
+        "termino",
+        "terminos",
+        "terminis"
+    ],
+    "mutatio": [
+        "mutationibus",
+        "mutationis",
+        "mutationem",
+        "mutationes",
+        "mutationum",
+        "mutatio",
+        "mutatione",
+        "mutationi"
+    ],
+    "gressus": [
+        "gressu",
+        "gressui",
+        "gressuum",
+        "gressus",
+        "gressibus",
+        "gressum"
+    ],
+    "mansio": [
+        "mansioni",
+        "mansiones",
+        "mansionum",
+        "mansio",
+        "mansionis",
+        "mansionem",
+        "mansionibus",
+        "mansione"
+    ],
+    "passus": [
+        "passibus",
+        "passu",
+        "passui",
+        "passus",
+        "passuum",
+        "passum"
+    ],
+    "clivus": [
+        "clivo",
+        "clivorum",
+        "clivos",
+        "clivi",
+        "clivum",
+        "clivus",
+        "clivis"
+    ],
+    "semita": [
+        "semite",
+        "semitarum",
+        "semitis",
+        "semitae",
+        "semita",
+        "semitas",
+        "semitam"
+    ],
+    "gradus": [
+        "graduum",
+        "gradum",
+        "gradui",
+        "gradu",
+        "gradibus",
+        "gradus"
+    ],
+    "cursus": [
+        "cursuum",
+        "cursus",
+        "cursibus",
+        "cursu",
+        "cursum",
+        "cursui"
+    ],
+    "viator": [
+        "viatori",
+        "viatorum",
+        "viator",
+        "viatorem",
+        "viatore",
+        "viatoris",
+        "viatores",
+        "viatoribus"
+    ],
+    "statio": [
+        "stationibus",
+        "stationes",
+        "stationis",
+        "statione",
+        "stationum",
+        "stationi",
+        "statio",
+        "stationem"
+    ],
+    "porta": [
+        "porte",
+        "portarum",
+        "portas",
+        "portae",
+        "portis",
+        "portam",
+        "porta"
+    ],
+    "vicus": [
+        "vicos",
+        "vici",
+        "vicum",
+        "vicorum",
+        "vico",
+        "vicus",
+        "vicis"
+    ],
+    "scala": [
+        "scale",
+        "scalam",
+        "scalis",
+        "scalas",
+        "scalae",
+        "scalarum",
+        "scala"
+    ],
+    "leuga": [
+        "leugae",
+        "leugis",
+        "leugarum",
+        "leuge",
+        "leugam",
+        "leugas",
+        "leuga"
+    ],
+    "actus": [
+        "actui",
+        "actu",
+        "actum",
+        "actibus",
+        "actuum",
+        "actus"
+    ],
+    "arcus": [
+        "arcum",
+        "arcu",
+        "arcuum",
+        "arcui",
+        "arcibus",
+        "arcus"
+    ],
+    "pons": [
+        "pontis",
+        "ponte",
+        "pontium",
+        "ponti",
+        "pontibus",
+        "pontem",
+        "pontum",
+        "pons",
+        "pontes"
+    ],
+    "iter": [
+        "iter",
+        "itineribus",
+        "itineri",
+        "itinera",
+        "itinere",
+        "itinerum",
+        "itineris"
+    ],
+    "via": [
+        "vias",
+        "viarum",
+        "viae",
+        "vie",
+        "via",
+        "viis",
+        "viam"
+    ]
+}
