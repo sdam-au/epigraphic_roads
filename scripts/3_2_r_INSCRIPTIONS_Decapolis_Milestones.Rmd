@@ -1,0 +1,179 @@
+---
+title: "Milestones around Decapolis"
+author: "Petra Hermankova"
+date: "26/03/2021"
+output:
+  html_document:
+    theme: united
+    toc: yes
+    toc_float: true
+    number_sections: true
+    toc_depth: 2
+    df_print: paged 
+---
+
+# Initial setup
+
+## Setup of the environment:
+
+```{r setup, echo=TRUE, message=FALSE}
+devtools::install_github("sdam-au/sdam") # loading SDAM custom package, if not working try devtools::install_github("mplex/cEDCSar", subdir="pkg/sdam")
+#devtools::install_github("mplex/cEDCSar", subdir="pkg/sdam")
+library(tidyverse)
+library(sdam)
+library(jsonlite)
+library(getPass)
+library(formatR)
+library(leaflet)
+```
+
+This notebook explores all the milestones from Roman provinces **Arabia**, **Syria** and **Palaestina** in the **Epigraphic Database Clauss-Slaby** (http://www.manfredclauss.de/, henceforth EDCS). The primary aim is to:
+
+- find all inscriptions categorized as 'milestones'
+- provide basic descriptive statistics: how many there are, what categories of monuments we have, what materials they are made from, where do they come from etc. 
+- display all the milestones on the map along with the map of Roman provinces and Roman roads
+
+The script takes the reader through all the steps of selection, descriptive statistics and through the various displays on the interactive map. Address all the questions and comments to `petra.hermankova@cas.au.dk`.
+
+## Loading data
+Load the dataset, if you have Sciencedata.dk credentials
+
+```{r, echo=FALSE}
+mycred_secret<- readLines("~/mysecret.txt")
+```
+
+```{r, loading data}
+resp2 = request("EDCS_text_cleaned_2021-03-01.json", path="/sharingin/648597@au.dk/SDAM_root/SDAM_data/EDCS/public", method="GET", cred=mycred_secret)
+```
+
+OR anonymously:
+```{r, loading data public, eval=FALSE}
+resp2 = request("EDCS_text_cleaned_2021-03-01.json", path="/public/1f5f56d09903fe259c0906add8b3a55e/", method="GET", anonymous = TRUE, cred = NULL)
+```
+
+Make a list and tibble from the downloaded dataset
+```{r}
+list_json2 <- jsonlite::fromJSON(resp2)
+EDCS_tibble = as_tibble(list_json2)
+```
+
+# Decapolis
+
+```{r}
+decapolis <- c("Jerash", "Aydoun", "Scythopolis", "Hippos", "Gadara", "Pella", "Philadelphia", "Canatha", "Raphana", "Damascus")
+
+EDCS_tibble %>% 
+  filter(place %in% str_subset(place, decapolis)) %>% 
+  View()
+```
+
+```{r}
+decapolis_province <- c("Syria", "Palaestina", "Arabia")
+
+decapolis_milestones<- EDCS_tibble %>% 
+  filter(province %in% str_subset(province, decapolis_province)) %>% 
+  filter(inscr_type %in% str_subset(inscr_type, "miliaria"))
+```
+# How many milestones?
+```{r}
+nrow(decapolis_milestones)
+```
+# In which province?
+```{r}
+decapolis_milestones %>% 
+  count(province, sort=T)
+```
+# In which place?
+```{r}
+decapolis_milestones %>% 
+  count(place, sort=T)
+```
+# When
+## Mean value of the date interval
+```{r}
+dates<- decapolis_milestones %>%  
+  mutate(mean = rowMeans(decapolis_milestones[,22:23]))
+
+dates %>% 
+  ggplot(aes(x=mean)) +
+  geom_histogram(fill="orange", size=1, binwidth = 10) +
+  labs(x = "Date (ar. mean)", y = "Number of inscription", title = "Number of dated milestones in time (ar. mean) in ten year bins", subtitle = "n = 3737" ) +
+  theme_linedraw(base_size = 12) +
+  scale_x_discrete(limits=c(-100,1,100,200, 250, 300, 400))+
+  geom_vline(aes(xintercept=250))
+```
+
+
+# Map
+```{r}
+decapolis_milestones$Latitude <- as.numeric(decapolis_milestones$Latitude)
+decapolis_milestones$Longitude <- as.numeric(decapolis_milestones$Longitude)
+```
+
+```{r, echo=FALSE}
+library(rgdal)
+library(raster)
+library(sf)
+library(sp)
+```
+Source of Roads shapefile: http://awmc.unc.edu/awmc/map_data/shapefiles/ba_roads/
+Source of Roman provinces (AD 200): http://awmc.unc.edu/awmc/map_data/shapefiles/cultural_data/political_shading/roman_empire_ad_200/shape/
+
+```{r, echo=FALSE}
+setwd("~/Github/epigraphic_roads")
+dir.create("../data/ba_roads")
+unzip("../data/ba_roads.zip", exdir = "../data/ba_roads/")
+dir.create("../data/roman_empire_200_ad_provinces")
+unzip("../data/roman_empire_ad_200_provinces.zip", exdir = "../data/roman_empire_200_ad_provinces")
+```
+
+```{r, echo=FALSE}
+roads <- st_read("../data/ba_roads/ba_roads.shp")
+provinces200 <- st_read("../data/roman_empire_200_ad_provinces/roman_empire_ad_200_provinces.shp")
+```
+
+```{r, echo=FALSE}
+orbis <- readLines("https://raw.githubusercontent.com/emeeks/orbis_v2/master/base_routes.geojson") %>% paste(collapse = "\n") %>% 
+  fromJSON(simplifyVector = FALSE)
+```
+
+```{r}
+library(leaflet)
+map_decapolis_milestones_EDCS<- leaflet(width="100%") %>%
+ #addProviderTiles("Stamen.Watercolor")%>% # Add CartoDB map tiles
+ addProviderTiles("Stamen.TerrainBackground")%>% # Add CartoDB map tiles
+ #addProviderTiles("Esri.WorldTopoMap", group = "Topo") %>%
+ #addProviderTiles("Esri.WorldImagery", group = "ESRI Aerial") %>%
+  setView( lng = 35.9239625, lat = 31.9515694, zoom = 5 ) %>%
+  #setMaxBounds(lat1=43.633977, lng1 =-11.227926 , lat2=35.133882 , lng2=50.882336) %>%
+ addPolylines(data = roads, color = "purple", weight = 1, opacity = 0.7) %>% 
+  addCircles(lng = decapolis_milestones$Longitude, 
+             lat = decapolis_milestones$Latitude, opacity = 0.5, radius = 10, fill = TRUE, color = "blue" , fillColor = "red",
+             popup = paste0("<b> InscriptionID: </b>", decapolis_milestones$`EDCS-ID`, 
+                            "<br><b> Ancient findspot: </b>", decapolis_milestones$place,
+                           "<br><b> Type of inscription: </b>", decapolis_milestones$inscr_type,
+                              "<br><b> Material: </b>", decapolis_milestones$Material,
+                              "<br><b> Not before (date): </b>", decapolis_milestones$start_yr,
+                             "<br><b> Not after (date): </b>", decapolis_milestones$end_yr_1,
+                                "<br><b> Commentary: </b>", decapolis_milestones$Comment),
+             ) %>% 
+addLegend(position = "topright",
+  colors = c("Blue", "Purple"),
+  labels = c("Milestones", "Roman roads (BA atlas)"), opacity = 1,
+  title = "Milestones around Decapolis" 
+)
+map_decapolis_milestones_EDCS
+
+```
+
+# Export as CSV
+
+```{r}
+road_decapolis<- decapolis_milestones %>% 
+  dplyr::select(`EDCS-ID`, province, place, start_yr, end_yr_1, inscr_type, inscription, clean_text_interpretive_word, language, Latitude, Longitude, Material) %>% 
+  unnest_wider(inscr_type) %>% 
+  rename("inscr_type1" = "...1", "inscr_type2" = "...2","inscr_type3" = "...3")
+
+write.csv(road_decapolis, "../output/Milestones_EDCS_decapolis.csv", row.names = T)
+```
+

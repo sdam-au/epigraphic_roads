@@ -346,7 +346,7 @@ map_Sardinia_EDCS<- leaflet(width="100%") %>%
 addLegend(position = "topright",
   colors = c("Blue", "Orange", "Yellow", "Purple"),
   labels = c("Milestones", "Funerary insc", "Road related insc", "Roman roads (BA atlas)"), opacity = 1,
-  title = "Road related inscriptions in Bythinia" 
+  title = "Road related inscriptions in Sardinia" 
 )
 map_Sardinia_EDCS
 
@@ -357,3 +357,53 @@ export_png(map_Sardinia_EDCS, "../output/", "Inscriptions_EDCS_Sardinia")
 export_png(map_Bithynia_EDCS, "../output/", "Inscriptions_EDCS_Bithynia")
 ```
 
+# Decapolis
+
+```{r}
+decapolis <- c("Jerash", "Aydoun", "Scythopolis", "Hippos", "Gadara", "Pella", "Philadelphia", "Canatha", "Raphana", "Damascus")
+
+EDCS_tibble %>% 
+  filter(place %in% str_subset(place, decapolis)) %>% 
+  View()
+```
+
+```{r}
+decapolis_province <- c("Syria", "Palaestina", "Arabia")
+
+decapolis_milestones<- EDCS_tibble %>% 
+  filter(province %in% str_subset(province, decapolis_province)) %>% 
+  filter(inscr_type %in% str_subset(inscr_type, "miliaria"))
+```
+```{r}
+decapolis_milestones$Latitude <- as.numeric(decapolis_milestones$Latitude)
+decapolis_milestones$Longitude <- as.numeric(decapolis_milestones$Longitude)
+```
+
+```{r}
+library(leaflet)
+map_decapolis_milestones_EDCS<- leaflet(width="100%") %>%
+ #addProviderTiles("Stamen.Watercolor")%>% # Add CartoDB map tiles
+ addProviderTiles("Stamen.TerrainBackground")%>% # Add CartoDB map tiles
+ #addProviderTiles("Esri.WorldTopoMap", group = "Topo") %>%
+ #addProviderTiles("Esri.WorldImagery", group = "ESRI Aerial") %>%
+  setView( lng = 35.9239625, lat = 31.9515694, zoom = 5 ) %>%
+  #setMaxBounds(lat1=43.633977, lng1 =-11.227926 , lat2=35.133882 , lng2=50.882336) %>%
+ addPolylines(data = roads, color = "purple", weight = 1, opacity = 0.7) %>% 
+  addCircles(lng = decapolis_milestones$Longitude, 
+             lat = decapolis_milestones$Latitude, opacity = 0.5, radius = 10, fill = TRUE, color = "blue" , fillColor = "red",
+             popup = paste0("<b> InscriptionID: </b>", decapolis_milestones$`EDCS-ID`, 
+                            "<br><b> Ancient findspot: </b>", decapolis_milestones$place,
+                           "<br><b> Type of inscription: </b>", decapolis_milestones$inscr_type,
+                              "<br><b> Material: </b>", decapolis_milestones$Material,
+                              "<br><b> Not before (date): </b>", decapolis_milestones$start_yr,
+                             "<br><b> Not after (date): </b>", decapolis_milestones$end_yr_1,
+                                "<br><b> Commentary: </b>", decapolis_milestones$Comment),
+             ) %>% 
+addLegend(position = "topright",
+  colors = c("Blue", "Purple"),
+  labels = c("Milestones", "Roman roads (BA atlas)"), opacity = 1,
+  title = "Milestones around Decapolis" 
+)
+map_decapolis_milestones_EDCS
+
+```
