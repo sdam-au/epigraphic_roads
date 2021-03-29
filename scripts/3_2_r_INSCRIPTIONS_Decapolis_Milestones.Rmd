@@ -27,7 +27,7 @@ library(formatR)
 library(leaflet)
 ```
 
-This notebook explores all the milestones from Roman provinces **Arabia**, **Syria** and **Palaestina** in the **Epigraphic Database Clauss-Slaby** (http://www.manfredclauss.de/, henceforth EDCS). The primary aim is to:
+This notebook explores all the milestones from the Roman Decapolis (cities Gerasa, Gadara, Hippos, Dion, Abila, Capitolias, Nysa-Scythopolis, Pella ,Philadelphia) in Roman provinces **Arabia**, **Syria** and **Palaestina** in the **Epigraphic Database Clauss-Slaby** (http://www.manfredclauss.de/, henceforth EDCS). The primary aim is to:
 
 - find all inscriptions categorized as 'milestones'
 - provide basic descriptive statistics: how many there are, what categories of monuments we have, what materials they are made from, where do they come from etc. 
@@ -60,55 +60,126 @@ EDCS_tibble = as_tibble(list_json2)
 # Decapolis
 
 ```{r}
-decapolis <- c("Jerash", "Aydoun", "Scythopolis", "Hippos", "Gadara", "Pella", "Philadelphia", "Canatha", "Raphana", "Damascus")
+decapolis <- c("Gerasa", "Gadara", "Hippos", "Dion", "Abila", "Capitolias", "Nysa-Scythopolis", "Pella" , "Philadelphia")
 
-EDCS_tibble %>% 
-  filter(place %in% str_subset(place, decapolis)) %>% 
-  View()
-```
-
-```{r}
 decapolis_province <- c("Syria", "Palaestina", "Arabia")
 
-decapolis_milestones<- EDCS_tibble %>% 
+
+
+decapolis_inscriptions<- EDCS_tibble %>% 
   filter(province %in% str_subset(province, decapolis_province)) %>% 
+  filter(place %in% str_subset(place, decapolis)) 
+
+decapolis_inscriptions %>% 
+  count(province) %>% 
+  View()
+
+
+provinces_inscriptions<- EDCS_tibble %>% 
+  filter(province %in% str_subset(province, decapolis_province)) 
+
+```
+
+```{r}
+milestones<- provinces_inscriptions %>% 
   filter(inscr_type %in% str_subset(inscr_type, "miliaria"))
+
+termini<- provinces_inscriptions %>% 
+  filter(inscr_type %in% str_subset(inscr_type, "termini"))
 ```
-# How many milestones?
+## How many inscriptions, milestones and termini?
 ```{r}
-nrow(decapolis_milestones)
+nrow(provinces_inscriptions)
+nrow(milestones)
+nrow(termini)
 ```
-# In which province?
+## In which province?
 ```{r}
-decapolis_milestones %>% 
+provinces_inscriptions %>% 
   count(province, sort=T)
 ```
-# In which place?
-```{r}
-decapolis_milestones %>% 
-  count(place, sort=T)
-```
-# When
-## Mean value of the date interval
-```{r}
-dates<- decapolis_milestones %>%  
-  mutate(mean = rowMeans(decapolis_milestones[,22:23]))
 
-dates %>% 
+```{r}
+milestones %>% 
+  count(province, sort=T)
+```
+
+```{r}
+termini %>% 
+  count(province, sort=T)
+```
+
+## When
+
+```{r}
+dates_all<- provinces_inscriptions %>% 
+  mutate(mean = rowMeans(provinces_inscriptions[,22:23]))
+```
+### Dated all inscriptions 
+
+```{r}
+dates_all %>% 
   ggplot(aes(x=mean)) +
   geom_histogram(fill="orange", size=1, binwidth = 10) +
-  labs(x = "Date (ar. mean)", y = "Number of inscription", title = "Number of dated milestones in time (ar. mean) in ten year bins", subtitle = "n = 3737" ) +
+  labs(x = "Date (ar. mean)", y = "Number of inscription", title = "Number of dated inscriptions in time (ar. mean) in ten year bins", subtitle = "n = 3351" ) +
   theme_linedraw(base_size = 12) +
   scale_x_discrete(limits=c(-100,1,100,200, 250, 300, 400))+
-  geom_vline(aes(xintercept=250))
+  geom_vline(aes(xintercept=106))
 ```
 
-
-# Map
+#### Inscriptions dated before 106 BC
 ```{r}
-decapolis_milestones$Latitude <- as.numeric(decapolis_milestones$Latitude)
-decapolis_milestones$Longitude <- as.numeric(decapolis_milestones$Longitude)
+dates_all %>% 
+  filter(mean < 106) 
 ```
+
+
+### Dated Milestones 
+```{r}
+dates_milestone<- milestones %>%  
+  mutate(mean = rowMeans(milestones[,22:23]))
+
+dates_milestone %>% 
+  ggplot(aes(x=mean)) +
+  geom_histogram(fill="orange", size=1, binwidth = 10) +
+  labs(x = "Date (ar. mean)", y = "Number of inscription", title = "Number of dated milestones in time (ar. mean) in ten year bins", subtitle = "n = 1038" ) +
+  theme_linedraw(base_size = 12) +
+  scale_x_discrete(limits=c(-100,1,100,200, 250, 300, 400))+
+  geom_vline(aes(xintercept=106))
+```
+
+#### Filter milestones before 106 AD
+```{r}
+dates_milestone %>% 
+  filter(mean <106)
+```
+
+
+### Dated Termini
+
+```{r}
+dates_termini<- termini %>%  
+  mutate(mean = rowMeans(termini[,22:23]))
+
+dates_termini %>% 
+  ggplot(aes(x=mean)) +
+  geom_histogram(fill="orange", size=1, binwidth = 10) +
+  labs(x = "Date (ar. mean)", y = "Number of inscription", title = "Number of dated termini in time (ar. mean) in ten year bins", subtitle = "n = 227" ) +
+  theme_linedraw(base_size = 12) +
+  scale_x_discrete(limits=c(0,50, 100,150, 200, 250))+
+  geom_vline(aes(xintercept=106))
+```
+
+#### Filter termini before 106 AD
+```{r}
+dates_termini %>% 
+  filter(mean ==61)
+```
+
+
+
+
+# Maps
 
 ```{r, echo=FALSE}
 library(rgdal)
@@ -137,9 +208,67 @@ orbis <- readLines("https://raw.githubusercontent.com/emeeks/orbis_v2/master/bas
   fromJSON(simplifyVector = FALSE)
 ```
 
+
+
+# Map all inscriptions from provinces Syria, Palaestina, Arabia
+
+```{r}
+library(raster)
+library(sf)
+
+provinces_inscriptions$Latitude <- as.numeric(provinces_inscriptions$Latitude)
+provinces_inscriptions$Longitude <- as.numeric(provinces_inscriptions$Longitude)
+
+decapolis_coords<- as.data.frame(read.csv("../data/decapolis/Decapolis.csv"))
+decapolis_coords
+
+```
+
+```{r}
+
+library(leaflet)
+map_provinces_inscriptions_EDCS<- leaflet(width="100%") %>%
+ #addProviderTiles("Stamen.Watercolor")%>% # Add CartoDB map tiles
+ addProviderTiles("Stamen.TerrainBackground")%>% # Add CartoDB map tiles
+ #addProviderTiles("Esri.WorldTopoMap", group = "Topo") %>%
+ #addProviderTiles("Esri.WorldImagery", group = "ESRI Aerial") %>%
+  setView( lng = 35.9239625, lat = 31.9515694, zoom = 5 ) %>%
+  #setMaxBounds(lat1=43.633977, lng1 =-11.227926 , lat2=35.133882 , lng2=50.882336) %>%
+  addPolylines(data = roads, color = "purple", weight = 1, opacity = 0.7) %>% 
+ addCircles(lng = provinces_inscriptions$Longitude, 
+             lat = provinces_inscriptions$Latitude, opacity = 0.2, radius = 10, fill = TRUE, color = "blue" , fillColor = "black",
+             popup = paste0("<b> InscriptionID: </b>", provinces_inscriptions$`EDCS-ID`, 
+                            "<br><b> Ancient findspot: </b>", provinces_inscriptions$place,
+                           "<br><b> Type of inscription: </b>", provinces_inscriptions$inscr_type,
+                              "<br><b> Material: </b>", provinces_inscriptions$Material,
+                              "<br><b> Not before (date): </b>", provinces_inscriptions$start_yr,
+                            "<br><b> Not after (date): </b>", provinces_inscriptions$end_yr_1,
+                                "<br><b> Commentary: </b>", provinces_inscriptions$Comment),
+             ) %>% 
+  addCircles(lng = decapolis_coords$X, 
+             lat = decapolis_coords$Y,
+             opacity = 0.5, radius = 15, fill = TRUE, color = "red" , fillColor = "black", popup = paste0("<b> City: </b>", decapolis_coords$Name)) %>% 
+
+addLegend(position = "bottomright",
+  colors = c("Blue", "Purple", "Red"),
+  labels = c("Inscriptions", "Roman roads (BA atlas)", "Decapolis cities"), opacity = 1,
+  title = "Inscriptions in provinces Syria, Palaestina, Arabia" 
+) %>% 
+  addScaleBar(position="bottomleft")
+map_provinces_inscriptions_EDCS
+
+```
+
+
+## Map of milestones
+```{r}
+milestones$Latitude <- as.numeric(milestones$Latitude)
+milestones$Longitude <- as.numeric(milestones$Longitude)
+```
+
 ```{r}
 library(leaflet)
-map_decapolis_milestones_EDCS<- leaflet(width="100%") %>%
+map_milestones_EDCS<- leaflet(width="100%") %>%
  #addProviderTiles("Stamen.Watercolor")%>% # Add CartoDB map tiles
  addProviderTiles("Stamen.TerrainBackground")%>% # Add CartoDB map tiles
  #addProviderTiles("Esri.WorldTopoMap", group = "Topo") %>%
@@ -147,33 +276,90 @@ map_decapolis_milestones_EDCS<- leaflet(width="100%") %>%
   setView( lng = 35.9239625, lat = 31.9515694, zoom = 5 ) %>%
   #setMaxBounds(lat1=43.633977, lng1 =-11.227926 , lat2=35.133882 , lng2=50.882336) %>%
  addPolylines(data = roads, color = "purple", weight = 1, opacity = 0.7) %>% 
-  addCircles(lng = decapolis_milestones$Longitude, 
-             lat = decapolis_milestones$Latitude, opacity = 0.5, radius = 10, fill = TRUE, color = "blue" , fillColor = "red",
-             popup = paste0("<b> InscriptionID: </b>", decapolis_milestones$`EDCS-ID`, 
-                            "<br><b> Ancient findspot: </b>", decapolis_milestones$place,
-                           "<br><b> Type of inscription: </b>", decapolis_milestones$inscr_type,
-                              "<br><b> Material: </b>", decapolis_milestones$Material,
-                              "<br><b> Not before (date): </b>", decapolis_milestones$start_yr,
-                             "<br><b> Not after (date): </b>", decapolis_milestones$end_yr_1,
-                                "<br><b> Commentary: </b>", decapolis_milestones$Comment),
+  addCircles(lng = milestones$Longitude, 
+             lat = milestones$Latitude, opacity = 0.5, radius = 10, fill = TRUE, color = "blue" , fillColor = "red",
+             popup = paste0("<b> InscriptionID: </b>", milestones$`EDCS-ID`, 
+                            "<br><b> Ancient findspot: </b>", milestones$place,
+                           "<br><b> Type of inscription: </b>", milestones$inscr_type,
+                              "<br><b> Material: </b>", milestones$Material,
+                              "<br><b> Not before (date): </b>", milestones$start_yr,
+                             "<br><b> Not after (date): </b>", milestones$end_yr_1,
+                                "<br><b> Commentary: </b>", milestones$Comment),
              ) %>% 
-addLegend(position = "topright",
-  colors = c("Blue", "Purple"),
-  labels = c("Milestones", "Roman roads (BA atlas)"), opacity = 1,
-  title = "Milestones around Decapolis" 
-)
-map_decapolis_milestones_EDCS
+  addCircles(lng = decapolis_coords$X, 
+             lat = decapolis_coords$Y,
+             opacity = 0.5, radius = 15, fill = TRUE, color = "red" , fillColor = "black", popup = paste0("<b> City: </b>", decapolis_coords$Name)) %>% 
+addLegend(position = "bottomright",
+  colors = c("Blue", "Purple", "Red"),
+  labels = c("Inscriptions", "Roman roads (BA atlas)", "Decapolis cities"), opacity = 1,
+  title = "Milestones in provinces Syria, Palaestina, Arabia" 
+) %>% 
+  addScaleBar(position="bottomleft")
+
+map_milestones_EDCS
 
 ```
+
+# Milestones with keywords 
+
+## Caput viae
+```{r}
+milestones %>% 
+  filter(clean_text_interpretive_word %in% str_subset(milestones$clean_text_interpretive_word, "caput")) 
+```
+
+```{r}
+milestones %>% 
+  filter(clean_text_interpretive_word %in% str_subset(milestones$clean_text_interpretive_word, "^viae")) 
+```
+
+## Ab [city]
+```{r}
+milestones %>% 
+  filter(clean_text_interpretive_word %in% str_subset(milestones$clean_text_interpretive_word, "ab ")) 
+```
+
+## Milia passuum and variants
+```{r}
+milestones %>% 
+  filter(clean_text_interpretive_word %in% str_subset(milestones$clean_text_interpretive_word, "passu*")) 
+```
+
+```{r}
+milestones %>% 
+  filter(clean_text_interpretive_word %in% str_subset(milestones$clean_text_interpretive_word, "^mill*")) 
+```
+
+```{r}
+milestones %>% 
+  filter(clean_text_interpretive_word %in% str_subset(milestones$clean_text_interpretive_word, "milia")) 
+```
+
+# Text 
+
+## Milestone
+
+```{r}
+unique(milestones$clean_text_interpretive_word)
+```
+
+
+## Termini
+
+```{r}
+unique(termini$clean_text_interpretive_word)
+```
+
+
 
 # Export as CSV
 
 ```{r}
-road_decapolis<- decapolis_milestones %>% 
+inscriptions_EDCS<- provinces_inscriptions %>% 
   dplyr::select(`EDCS-ID`, province, place, start_yr, end_yr_1, inscr_type, inscription, clean_text_interpretive_word, language, Latitude, Longitude, Material) %>% 
   unnest_wider(inscr_type) %>% 
   rename("inscr_type1" = "...1", "inscr_type2" = "...2","inscr_type3" = "...3")
 
-write.csv(road_decapolis, "../output/Milestones_EDCS_decapolis.csv", row.names = T)
+write.csv(inscriptions_EDCS, "../output/Inscriptions_all_decapolis_EDCS.csv", row.names = T)
 ```
 
