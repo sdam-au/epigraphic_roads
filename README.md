@@ -85,7 +85,7 @@ Description of individual attributes and their source
 [EDH dataset metadata](https://docs.google.com/spreadsheets/d/1O_4EH-POKqUgq5K-B1DbbJQ8WWF0NQ6s12dCiW29MbA/edit?usp=sharing)
 [EDCS dataset metadata](https://docs.google.com/spreadsheets/d/17k4quLM6RiEu821n3caitK8labzuurIGmzf0W1bHnss/edit?usp=sharing)
 
-### Input dataset 
+### Input (training) dataset (EDH)
 
 Public link: 
 
@@ -107,6 +107,27 @@ auth = sddk.configure("SDAM_root", "648597@au.dk") # where "648597@au.dk is own
 EDH = sddk.read_file("public/b6b6afdb969d378b70929e86e58ad975/EDH_text_cleaned_2021-01-21.json", "df", auth)
 ```
 
+### Target dataset (EDCS)
+
+Public link: `https://sciencedata.dk/public/1f5f56d09903fe259c0906add8b3a55e/EDCS_text_cleaned_2021-03-01.json` 
+
+**Access with R (using custom `sdam` package)**
+
+```r
+resp = request("EDCS_text_cleaned_2021-03-01.json", path="/public/1f5f56d09903fe259c0906add8b3a55e/", method="GET", anonymous = TRUE, cred = NULL)
+
+list_json <- jsonlite::fromJSON(resp)
+EDCS = as_tibble(list_json)
+```
+
+**Access with Python (using custom [SDDK package](https://pypi.org/project/sddk/))**
+
+```python
+!pip install sddk
+import sddk
+auth = sddk.configure("SDAM_root", "648597@au.dk") # where "648597@au.dk is owner of the shared folder, i.e. Vojtěch
+EDCS = sddk.read_file("SDAM_data/EDCS/public/EDCS_text_cleaned_2021-03-01.json", "df", auth)
+```
 
 ### Data output (public folder on Sciencedata.dk)
 
