@@ -126,8 +126,8 @@ write.csv(funerary_Bithynia, "../output/funerary_EDCS_Bithynia.csv", row.names =
 # Inscriptions with road-related terms
 
 ```{r, loading data public terms, eval=FALSE}
-#resp3 = request("EDCS_terms_2021-03-25.json", path="/public/66cbabddae0e02c6ae6c15be9746990c/", method="GET", anonymous = TRUE, cred = NULL)
-resp3 = request("EDCS_terms_2021-03-25.json", path="/public/66cbabddae0e02c6ae6c15be9746990c/", method="GET", cred=mycred_secret)
+resp3 = request("EDCS_terms_2021-03-25.json", path="/public/66cbabddae0e02c6ae6c15be9746990c/", method="GET", anonymous = TRUE, cred = NULL)
+#resp3 = request("EDCS_terms_2021-03-25.json", path="/public/66cbabddae0e02c6ae6c15be9746990c/", method="GET", cred=mycred_secret)
 
 list_json3 <- jsonlite::fromJSON(resp3, flatten = TRUE, simplifyDataFrame=T)
 EDCS_vocabs <- as_tibble(list_json3)
@@ -148,6 +148,10 @@ road_json<- toJSON(EDCS_road_terms, auto_unbox = TRUE)
 road_list<- fromJSON(road_json)
 EDCS_road = as_tibble(road_list)
 EDCS_road
+```
+
+```{r}
+save(road_json, file="EDCS_road_related_inscriptions.json")
 ```
 
 Cleaning up memory:
