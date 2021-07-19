@@ -1,4 +1,4 @@
-# The use of roads as one of the main form of infrastructure in the ancient Mediterranean based on inscriptions
+# The use of roads in the ancient Mediterranean based on inscriptions
 *ANALYSIS*
 
 ---
@@ -7,22 +7,26 @@
 
 ## Purpose
 
-The system of roads in the Roman State represented complex network of stone paved roads connecting Rome with all parts of the Empire, stretching all accross the Mediterranean with more of 50,000 miles of known paved roads. The roads were crutial infrastructure enabling fast movement of Roman armies, information circulation and state related traffic. However, roads and the related amenities were used also by the local inhabitans for transport of goods and people. The inscriptions were often placed next to the course of the road (milestones, funerary inscriptions) to convey imporatant information to the traveller. Moreover, the text of inscriptions contained details of road building, maintenance, physical description of the amenities, such as inns or horse-stations, bridges, gates, and the daily use of the road. 
+The system of roads in the Roman State represented complex network of stone paved roads connecting Rome with all parts of the Empire, stretching all accross the Mediterranean with more of 80,000 km of known paved roads, or some 400,000 km of unpaved roads. The road network stretched as far as the Iberian Peninsula and the Near East, connecting the major administrative and population centres, with amenities serving the state as well as the local people. The roads represented crutial infrastructure enabling fast movement of Roman armies, circulation of information and state related traffic. 
 
-This project aims to to extract information related the road system and its use in the ancient Mediterranean on the basis of surviving Latin, and potentially also Greek, inscriptions.  
+Inscriptions on a durable medium, suach as stone, were often placed next to the course of the road to convey important information to the traveller. The text of inscriptions contained details of distances to the administrative centres, informed about the road building and its maintenance, but it also contained physical description of the amenities, such as inns or horse-stations, bridges, gates, and the daily use of the road. The information extracted from an inscription can help not only to locate the course of the road in space, but also in time: the textual references to known historical events or people can provide a date for building or maintenance work of the section of the road, previously unknown form any other archaeological or literary source.
+
+This project aims to to extract information related the road system and its use in the ancient Mediterranean on the basis of surviving Latin, and potentially also Greek, inscriptions. The goal is to fill in any gaps in the known course of the road network, add more details on its development in time and provide more details on the usage of the road system by the state, but also by the common people.
 
 
 ### Project 1 - Milestones
 
-Milestone is a specific type of inscription on stone that was placed next to the road so the travellers could orientate themselves in the space. Milestones usually contained information on who built or paid for the reconstruction of the road, who was responsible for the maintenance and to the administrative region of which city the road belonged. The distances were usually stated in Roman miles with the typical formula 'milia passuum' (literally: thousand steps). 
+Milestone represent a specific type of inscription, typically made of stone and placed next to the road so the travellers could orientate themselves in the space. Milestones usually contained information on who built or paid for the reconstruction of the road, who was responsible for the maintenance and the administrative region of which city the road belonged. The most important information was the distance from the location of the milestones to the administrative centre (cities in charge or the road section, called 'caput viae'), usually stated in Roman miles with the typical formula 'milia passuum', literally: thousand steps. 
 
-The location (geocoordinates) of milestones can help determine the course of the road, its date, and the spatial extent of the administrative units (cities in charge, so called 'caput viae'). However, not all milestones were categorised systematically and the set of rules 'what defines a milestone' is often vague and based on small samples from geographically limited regions.
+The location (geocoordinates) of milestones can help determine the course of the road, if uknown, or can help correcting the current course of the road, or alternatively, help discover new smaller roads. The mention of the `caput viae` can help determining the extent of the administrative regions, that are often unknown from any other sources. The date of an inscription provides an important piece of information on when the particular section of road was built or rebuilt and who was responsible and in charge of financing.
 
-The purpose of the Project 1 is to find a subset of all milestones in the EDH dataset and on the basis of the subset determine a set of rules for future epigraphers to help them classify an inscription as a milestone. 
+However, not all milestones were categorised systematically and the set of rules 'what defines a milestone' is often vague and based on small samples from geographically limited regions.
+
+The purpose of the Project 1 is to find a subset of all milestones in the EDH dataset with 80,000+ inscriptions and on the basis of the subset determine a set of rules for future epigraphers to help them classify an inscription as a milestone. The set or rules will be then applied to find all milestones from the larger EDCS dataset, containing 500,000+ inscriptions.
 
 The set of rules will ideally contain: 
 
-1. the most common words occuring in a milestone
+1. the most common words occuring in a milestone, repeating formulae, etc.
 1. most common material
 1. typical range of physical dimensions etc.
 
@@ -59,7 +63,7 @@ Ideal outcome of the model - numeric representation of a probability with which 
 
 According to a widely accepted theory, inscriptions were clustered along the roads or in their proximity. Their contents were often communicating with the travellers, evidenced by the frequent use of invocations for travellers such as 'viator' or 'parodita' in the text of inscriptions. Other inscriptions mention the traffic on the roads and their use by the army or by the local communities as well. 
 
-I have created a set of Latin vocabularies related to the use of roads, their construction and physical ammenities connected with the road traffic. I will search for the occurences of these terms in the text of the inscription in order to create a subset of inscriptions related to a road use.
+I have created a set of Latin vocabularies related to the use of roads, their construction and physical ammenities connected with the road traffic. I will search for the occurences of road-related terms in the text of the inscription in order to create a subset of inscriptions related to a road use.
 
 I will then assess the usefulness of the method by spotchecking the text of inscriptions and the relevance of their text to the use of the road system. I will reevaluate the list of the vocabularies based on the findings.
 
@@ -69,7 +73,7 @@ As a next step, I will overlay the subset of isncriptions with the known dataset
 
 
 ## Authors
-* Petra Hermankova [![](https://orcid.org/sites/default/files/images/orcid_16x16.png)](https://orcid.org/0000-0002-6349-0540), SDAM project, Aarhus University, petra.hermankova@cas.au.dk
+* Dr Petra Hermankova [![](https://orcid.org/sites/default/files/images/orcid_16x16.png)](https://orcid.org/0000-0002-6349-0540), postdoc, SDAM project, Aarhus University, petra.hermankova@cas.au.dk
  
 
 ## License
