@@ -62,6 +62,16 @@ list_json <- jsonlite::fromJSON(resp)
 EDH_tibble = as_tibble(list_json)
 ```
 
+
+Or f you don't have the SDAM package installed, nor access to Sciencedata:
+```{r}
+list_json <- jsonlite::fromJSON("https://zenodo.org/record/4888168/files/EDH_text_cleaned_2021-01-21.json?download=1")
+EDH_tibble = as_tibble(list_json)
+```
+
+
+
+
 ## Exploring the data
 Display the first six records of the dataset
 ```{r}
@@ -223,6 +233,13 @@ Now we will combine all milestones that have a word meilen- in `commentary` and 
 milestone_all <- EDH_tibble %>%  
   dplyr::filter(str_detect(commentary, "[M|m]eilen") | type_of_monument_clean == "mile-/leaguestone" | type_of_inscription_clean == "mile-/leaguestone" | support_objecttype =="89" | keywords_term =="102") 
 ```
+
+```{r}
+milestone_json <- toJSON(milestone_all)
+write (milestone_json, "../data/EDH_2020_09_22_milestones_all_SDAM.json")
+```
+
+
 
 # Descriptive overview 
 
