@@ -32,32 +32,6 @@ The set of rules will ideally contain:
 
 FUTURE STEPS: The example of a milestone inscription will be later expanded to all types of inscriptions in order to create a handbook for epigraphers, see subproject 1.
 
-#### Subproject 1 - classification of inscriptions
-
-Train a classification model (based on the data + metadata available through EDH dataset, 80,000+ records) to help classify an input dataset.
-
-Training dataset - use attributes (sorted from the most important):
-1. `clean_text_interpretive_word` = containing clean text of an inscription, text
-2. `type_of_inscription_clean` = containing cleaned typology for inscriptions, 22 unique categories
-3. `type_of_inscription_certainty` = containg binary values (certain, uncertain) stating the level of confidence of the classification in `type_of_inscription_clean` 
-4. `material_clean` = cleaned material of the inscribed object, 34 unique categories
-5. `type_of_monument_clean` = cleaned typology of types of inscribed objects
-6. `type_of_monument_certainty` = containg binary values (certain, uncertain) stating the level of confidence of the classification in `type_of_monument_clean`
-
-Additional attributes that can be used to improve the classification:
-
-1. `height_cm` = cleaned maximal height of the object
-2. `width_cm` = cleaned maximal width of the object
-3. `depth_cm` = cleaned maximal depth of the object
-
-The input dataset has no formal typology, it contains the following attributes (link to the dataset TBA)
-1. `clean_text_interpretive_word` = containing clean text of an inscription
-2. `material` = cleaned material of the inscribed object
-
-*Scenario:* 
-Based on the training dataset generate a classification model that would help researchers classify inscritpions in an input dataset. 
-
-Ideal outcome of the model - numeric representation of a probability with which an inscription X from the input dataset falls into the categorisation of inscription types. For example, `inscription X from input dataset is categorised as 56 % milestone,  45 % decree,  10 % funerary inscription, 1 % list.`
 
 ### Project 2 - Road use on inscriptions
 
